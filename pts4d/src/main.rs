@@ -1,12 +1,19 @@
 extern crate sdl2;
 
-mod utils {
+mod object {
+    pub mod object;
+}
+
+mod scene {
+    pub mod scene;
+    pub mod camera;
     pub mod screen;
 }
 
 mod renderer;
 
-use crate::utils::screen;
+use crate::scene::screen;
+use crate::scene::screen::Screen;
 use renderer::render_pass;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
@@ -39,8 +46,7 @@ pub fn main() -> Result<(), String> {
     let mut event_pump = sdl_context.event_pump()?;
     let mut t = 0;
 
-    let mut rendering_screen: screen::Screen =
-        [[Color::RGB(0, 0, 0); screen::WIDTH]; screen::HEIGHT];
+    let mut rendering_screen: Screen = [[Color::RGB(0, 0, 0); screen::WIDTH]; screen::HEIGHT];
 
     'running: loop {
         for event in event_pump.poll_iter() {
@@ -59,10 +65,12 @@ pub fn main() -> Result<(), String> {
         // Prevent overflows
         if t < screen::WIDTH {
             rendering_screen[50][t] = Color::RGB(255, 255, 255);
+        } else if t == screen::WIDTH {
+            println!("Done :)");
         }
 
         // Magic happens here
-        render_pass(&mut rendering_screen, &mut canvas).unwrap();
+        render_pass(&rendering_screen, &mut canvas).unwrap();
 
         println!("Iteration {}", t);
 
