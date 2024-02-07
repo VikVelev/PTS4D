@@ -12,25 +12,24 @@ mod scene {
 
 mod utils {
     pub mod scene_builders;
+    pub mod vector_utils;
 }
 
 mod renderer;
 
 use crate::scene::scene::Scene;
 use crate::scene::screen;
-use crate::scene::screen::Screen;
 use crate::utils::scene_builders;
 
-use renderer::render_pass;
+use renderer::{render_pass, present_screen};
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::pixels::Color;
 use std::time::Duration;
 
 pub fn main() -> Result<(), String> {
-
     println!("Welcome to PTS4D!");
-    
+
     // SDL Boilerplate
     let sdl_context = sdl2::init()?;
     let video_subsystem = sdl_context.video()?;
@@ -41,18 +40,17 @@ pub fn main() -> Result<(), String> {
         .build()
         .map_err(|e| e.to_string())?;
     let mut canvas = window.into_canvas().build().map_err(|e| e.to_string())?;
-    
+
     // Set default background color to black.
     canvas.set_draw_color(Color::RGB(0, 0, 0));
     canvas.clear();
-    
+
     // Paint the screen
     canvas.present();
-    
+
     let mut event_pump = sdl_context.event_pump()?;
-    
+
     // Initialize PTS4D World
-    let mut rendering_screen: Screen = [[Color::RGB(0, 0, 0); screen::WIDTH]; screen::HEIGHT];
     let scene: Scene = scene_builders::generate_scene();
 
     // Keep track of iterations
@@ -70,13 +68,15 @@ pub fn main() -> Result<(), String> {
             }
         }
 
-        render_pass(&scene, &mut rendering_screen, &mut canvas).unwrap();
-        
+        let current_frame = render_pass(&scene, None);
+        present_screen(&current_frame, &mut canvas);
+
         i += 1;
         println!("Complented a pass! {}", i);
         ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 30));
     }
 
     println!("Bye!");
-    Ok(())
+
+    return Ok(());
 }

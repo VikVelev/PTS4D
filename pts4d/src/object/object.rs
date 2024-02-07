@@ -9,4 +9,5 @@ impl Hitable for Object {
         return true;
     }
 }
+
 pub struct Object {}
