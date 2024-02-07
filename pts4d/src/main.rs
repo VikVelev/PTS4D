@@ -18,7 +18,7 @@ mod utils {
 mod renderer;
 
 use crate::scene::scene::Scene;
-use crate::scene::screen;
+use crate::scene::screen::{self, Screen};
 use crate::utils::scene_builders;
 
 use renderer::{render_pass, present_screen};
@@ -55,6 +55,7 @@ pub fn main() -> Result<(), String> {
 
     // Keep track of iterations
     let mut i = 0;
+    let mut last_frame: Option<Box<Screen>> = None;
 
     'running: loop {
         for event in event_pump.poll_iter() {
@@ -68,8 +69,9 @@ pub fn main() -> Result<(), String> {
             }
         }
 
-        let current_frame = render_pass(&scene, None);
-        present_screen(&current_frame, &mut canvas);
+        let current_frame = Some(render_pass(&scene, last_frame));
+        last_frame = current_frame.clone();
+        present_screen(current_frame.unwrap(), &mut canvas);
 
         i += 1;
         println!("Complented a pass! {}", i);

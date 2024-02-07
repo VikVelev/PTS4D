@@ -39,7 +39,7 @@ pub fn render_pass(scene: &Scene, screen: Option<Box<Screen>>) -> Box<Screen> {
     return new_screen;
 }
 
-pub fn present_screen(screen: &Screen, sdl_canvas: &mut Canvas<Window>) {
+pub fn present_screen(screen: Box<Screen>, sdl_canvas: &mut Canvas<Window>) {
     for (y, row) in screen.iter().enumerate() {
         for (x, pixel) in row.iter().enumerate() {
             sdl_canvas.set_draw_color(Color {
