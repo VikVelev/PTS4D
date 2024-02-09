@@ -2,6 +2,7 @@ extern crate sdl2;
 
 mod object {
     pub mod object;
+    pub mod material;
 }
 
 mod scene {

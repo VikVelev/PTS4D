@@ -1,11 +1,41 @@
+use crate::object::object::{Hitable, Object};
 use crate::scene::scene::Scene;
 use crate::scene::screen::Screen;
 use crate::scene::screen::{HEIGHT, WIDTH};
+use crate::utils::vector_utils::Ray;
 use cgmath::Vector3;
 use sdl2::pixels::Color;
 use sdl2::rect::Point;
 use sdl2::render::Canvas;
 use sdl2::video::Window;
+use std::f32::MAX;
+
+// Casts a ray and returns the color
+pub fn ray_trace(scene: &Scene, ray: &Ray, bounces: i32) -> Vector3<f32> {
+    let main_sphere = scene.objects.first();
+    let mut hit = None;
+
+    if main_sphere.is_some() {
+        let sphere = main_sphere.unwrap();
+        hit = sphere.intersect(ray, (0.001, MAX));
+    }
+
+    if hit.is_none() {
+        return Vector3 {
+            x: 0.0,
+            y: 200.0,
+            z: 0.0,
+        };
+    } else {
+        return Vector3 {
+            x: 200.0,
+            y: 0.0, 
+            z: 0.0,
+        }
+    }
+}    
+
+
 
 pub fn render_pass(scene: &Scene, screen: Option<Box<Screen>>) -> Box<Screen> {
     let mut new_screen: Box<Screen>;
@@ -22,17 +52,11 @@ pub fn render_pass(scene: &Scene, screen: Option<Box<Screen>>) -> Box<Screen> {
         );
     }
 
-    for x in 0..HEIGHT {
-        for y in 0..WIDTH {
-            // Calculate pixel color here.
-            // DEBUG: Testing screen manipulation
-            if y % 10 == 0 {
-                new_screen[x][y] = Vector3 {
-                    x: 255.0,
-                    y: 0.0,
-                    z: 255.0,
-                };
-            }
+    for y in 0..HEIGHT {
+        for x in 0..WIDTH {
+            let ray = scene.shoot_ray(x as f32 / WIDTH as f32, y as f32 / HEIGHT as f32);
+            let color: Vector3<f32> = ray_trace(scene, &ray, 10);
+            new_screen[y][x] = color;
         }
     }
 
