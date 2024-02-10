@@ -1,18 +1,20 @@
-use crate::materials::material::{Metallic, Reflective};
+use crate::materials::material::{Lambertian, Metallic, Reflective};
 use crate::object::object::Hitable;
 use crate::scene::scene::Scene;
 use crate::scene::screen::Screen;
 use crate::scene::screen::{HEIGHT, WIDTH};
 use crate::utils::scene_builders::generate_sky;
 use crate::utils::vector_utils::{Hit, Ray};
-use cgmath::Vector3;
+use cgmath::{ElementWise, Vector3};
+use sdl2::libc::close;
 use sdl2::pixels::Color;
 use sdl2::rect::Point;
 use sdl2::render::Canvas;
 use sdl2::video::Window;
 use std::f32::MAX;
 
-const MAX_DEPTH: i32 = 50;
+const MAX_DEPTH: i32 = 10;
+const SAMPLES_PER_PIXEL: i32 = 5;
 
 pub fn ray_trace(scene: &Scene, ray: &Ray) -> Vector3<f32> {
     return ray_trace_rec(scene, ray, 0);
@@ -20,20 +22,35 @@ pub fn ray_trace(scene: &Scene, ray: &Ray) -> Vector3<f32> {
 
 // Recursively ray-trace until the number of bounces has reached MAX_DEPTH
 pub fn ray_trace_rec(scene: &Scene, ray: &Ray, bounces: i32) -> Vector3<f32> {
-    let main_sphere = scene.objects.first();
-    let mut hit: Option<Hit<Metallic>> = None;
+    let mut hit: Option<Hit<Lambertian>> = None;
+    let mut closest_intersection_point: f32 = MAX;
 
-    // TODO: Generalize this for all kinds of objects
-    if main_sphere.is_some() {
-        let sphere = main_sphere.unwrap();
-        hit = sphere.intersect(ray, (0.001, MAX));
+    for obj in &scene.objects {
+        let main_sphere = obj;
+        let temp_closest_hit = main_sphere.intersect(ray, (0.001, closest_intersection_point));
+        if temp_closest_hit.is_some() {
+            let closest_hit = temp_closest_hit.unwrap();
+            closest_intersection_point = closest_hit.point_at_intersection;
+            hit = Some(closest_hit);
+        }
     }
+
 
     if hit.is_some() && bounces < MAX_DEPTH {
         let some_hit = hit.unwrap();
-        // let bounced_ray = some_hit.material.scatter(ray);
+        let maybe_bounced_ray = some_hit.material.scatter(ray, &some_hit);
 
-        return some_hit.material.color;
+        if maybe_bounced_ray.is_some() {
+            let (bounced_ray, attenuation) = maybe_bounced_ray.unwrap();
+            // return attenuation;
+            return ray_trace_rec(scene, &bounced_ray, bounces + 1).mul_element_wise(attenuation);
+        } else {
+            return Vector3 {
+                x: 0.0,
+                y: 0.0,
+                z: 0.0,
+            };
+        }
     } else {
         return generate_sky(ray);
     }
@@ -56,8 +73,11 @@ pub fn render_pass(scene: &Scene, screen: Option<Box<Screen>>) -> Box<Screen> {
 
     for y in 0..HEIGHT {
         for x in 0..WIDTH {
-            let ray = scene.shoot_ray(x as f32 / WIDTH as f32, y as f32 / HEIGHT as f32);
-            let color: Vector3<f32> = ray_trace(scene, &ray);
+            let mut color: Vector3<f32> = Vector3 { x: 0.0, y: 0.0, z: 0.0 };
+            for _ in 0..SAMPLES_PER_PIXEL {
+                let ray = scene.shoot_ray(x as f32 / WIDTH as f32, y as f32 / HEIGHT as f32);
+                color += ray_trace(scene, &ray) / SAMPLES_PER_PIXEL as f32;
+            }
             new_screen[y][x] = color;
         }
     }

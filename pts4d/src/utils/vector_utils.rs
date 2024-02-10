@@ -1,7 +1,9 @@
-use cgmath::Vector3;
+use cgmath::{InnerSpace, Vector3};
+use rand::Rng;
 
 use crate::materials::material::Reflective;
 
+#[derive(Copy, Clone, Debug)]
 pub struct Ray {
     pub origin: Vector3<f32>,
     pub direction: Vector3<f32>,
@@ -13,6 +15,7 @@ impl Ray {
     }
 }
 
+#[derive(Copy, Clone, Debug)]
 pub struct Hit<'a, MaterialType: Reflective> {
     // Given a vector
     // a --- (p) ------> b
@@ -28,4 +31,26 @@ pub struct Hit<'a, MaterialType: Reflective> {
 
     // Material, expressing what has been hit
     pub material: &'a MaterialType,
+}
+
+pub fn random_point_in_unit_sphere() -> Vector3<f32> {
+    let mut rng = rand::thread_rng();
+    let vec: Vector3<f32> = loop {
+        let temp =
+            2.0 * Vector3 {
+                x: rng.gen::<f32>(),
+                y: rng.gen::<f32>(),
+                z: rng.gen::<f32>(),
+            } - Vector3 {
+                x: 1.0,
+                y: 1.0,
+                z: 1.0,
+            };
+
+        if temp.magnitude2() >= 1.0 {
+            break temp;
+        };
+    };
+
+    return vec;
 }

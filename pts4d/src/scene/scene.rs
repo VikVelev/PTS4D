@@ -1,23 +1,20 @@
-use crate::materials::material::Metallic;
+use cgmath::Vector3;
+use rand::Rng;
+
+use crate::materials::material::{Lambertian, Metallic};
 use crate::object::object::Sphere;
 use crate::scene::camera::Camera;
 use crate::utils::vector_utils::Ray;
 
-const NUM_OF_OBJECTS: usize = 1;
+const NUM_OF_OBJECTS: usize = 2;
 
 pub struct Scene {
-    pub objects: [Sphere<Metallic>; NUM_OF_OBJECTS],
+    pub objects: [Sphere<Lambertian>; NUM_OF_OBJECTS],
     pub camera: Camera,
 }
 
 impl Scene {
     pub fn shoot_ray(&self, x: f32, y: f32) -> Ray {
-        let cam = &self.camera;
-
-        return Ray {
-            origin: cam.origin,
-            direction: cam.lower_left_corner + (x * cam.horizontal) + (y * cam.vertical)
-                - cam.origin,
-        };
+        return self.camera.shoot_ray(x, y);
     }
 }
