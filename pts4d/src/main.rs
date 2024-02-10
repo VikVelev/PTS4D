@@ -61,7 +61,6 @@ pub fn main() -> Result<(), String> {
 
     // Keep track of iterations
     let mut i = 0;
-    let mut last_frame: Option<Box<Screen>> = None;
 
     'running: loop {
         let start_time = Instant::now();
@@ -76,8 +75,7 @@ pub fn main() -> Result<(), String> {
             }
         }
 
-        let current_frame = Some(render_pass(&scene, last_frame));
-        last_frame = current_frame.clone();
+        let current_frame = Some(render_pass(&scene));
         present_screen(current_frame.unwrap(), &mut canvas);
 
         i += 1;

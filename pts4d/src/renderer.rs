@@ -18,6 +18,14 @@ pub fn ray_trace(scene: &Scene, ray: &Ray) -> Vector3<f32> {
 
 // Recursively ray-trace until the number of bounces has reached MAX_DEPTH
 pub fn ray_trace_rec(scene: &Scene, ray: &Ray, bounces: i32) -> Vector3<f32> {
+    if bounces >= MAX_DEPTH {
+        return Vector3 {
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+        };
+    }
+
     let mut hit: Option<Hit<Lambertian>> = None;
     let mut closest_intersection_point: f32 = MAX;
 
@@ -31,46 +39,41 @@ pub fn ray_trace_rec(scene: &Scene, ray: &Ray, bounces: i32) -> Vector3<f32> {
         }
     }
 
-
-    if hit.is_some() && bounces < MAX_DEPTH {
+    if hit.is_some() {
         let some_hit = hit.unwrap();
         let maybe_bounced_ray = some_hit.material.scatter(ray, &some_hit);
 
         if maybe_bounced_ray.is_some() {
             let (bounced_ray, attenuation) = maybe_bounced_ray.unwrap();
-            // return attenuation;
-            return ray_trace_rec(scene, &bounced_ray, bounces + 1).mul_element_wise(attenuation);
-        } else {
-            return Vector3 {
+            return attenuation.mul_element_wise(ray_trace_rec(scene, &bounced_ray, bounces + 1));
+        }
+
+        return Vector3 {
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+        };
+    }
+    
+    return generate_sky(ray);
+}
+
+pub fn render_pass(scene: &Scene) -> Box<Screen> {
+    let mut new_screen = Box::new(
+        [[Vector3 {
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+        }; WIDTH]; HEIGHT],
+    );
+
+    for y in 0..HEIGHT {
+        for x in 0..WIDTH {
+            let mut color: Vector3<f32> = Vector3 {
                 x: 0.0,
                 y: 0.0,
                 z: 0.0,
             };
-        }
-    } else {
-        return generate_sky(ray);
-    }
-}
-
-
-pub fn render_pass(scene: &Scene, screen: Option<Box<Screen>>) -> Box<Screen> {
-    let mut new_screen: Box<Screen>;
-
-    if screen.is_some() {
-        new_screen = screen.unwrap();
-    } else {
-        new_screen = Box::new(
-            [[Vector3 {
-                x: 0.0,
-                y: 0.0,
-                z: 0.0,
-            }; WIDTH]; HEIGHT],
-        );
-    }
-
-    for y in 0..HEIGHT {
-        for x in 0..WIDTH {
-            let mut color: Vector3<f32> = Vector3 { x: 0.0, y: 0.0, z: 0.0 };
             for _ in 0..SAMPLES_PER_PIXEL {
                 let ray = scene.shoot_ray(x as f32 / WIDTH as f32, y as f32 / HEIGHT as f32);
                 color += ray_trace(scene, &ray);
@@ -81,4 +84,3 @@ pub fn render_pass(scene: &Scene, screen: Option<Box<Screen>>) -> Box<Screen> {
 
     return new_screen;
 }
-
