@@ -2,6 +2,9 @@ extern crate sdl2;
 
 mod object {
     pub mod object;
+}
+
+mod materials {
     pub mod material;
 }
 
@@ -22,11 +25,11 @@ use crate::scene::scene::Scene;
 use crate::scene::screen::{self, Screen};
 use crate::utils::scene_builders;
 
-use renderer::{render_pass, present_screen};
+use renderer::{present_screen, render_pass};
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::pixels::Color;
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
 pub fn main() -> Result<(), String> {
     println!("Welcome to PTS4D!");
@@ -59,6 +62,7 @@ pub fn main() -> Result<(), String> {
     let mut last_frame: Option<Box<Screen>> = None;
 
     'running: loop {
+        let start_time = Instant::now();
         for event in event_pump.poll_iter() {
             match event {
                 Event::Quit { .. }
@@ -75,8 +79,13 @@ pub fn main() -> Result<(), String> {
         present_screen(current_frame.unwrap(), &mut canvas);
 
         i += 1;
-        println!("Complented a pass! {}", i);
-        ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 30));
+        let end_time = (Instant::now() - start_time).as_millis();
+        println!(
+            "Frame {} in {:?}ms - {} FPS",
+            i,
+            end_time,
+            1000.0 / end_time as f32
+        );
     }
 
     println!("Bye!");

@@ -19,9 +19,7 @@ pub fn construct_camera(
     up: Vector3<f32>,
     fov: f32,
     aspect_ratio: f32,
-    aperature: f32,
 ) -> Camera {
-    let lens_radius = aperature / 2.0;
     let theta = fov * PI / 180.0;
 
     let half_height = (theta / 2.0).tan();

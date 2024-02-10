@@ -3,15 +3,22 @@ use crate::scene::scene::Scene;
 use crate::scene::screen::Screen;
 use crate::scene::screen::{HEIGHT, WIDTH};
 use crate::utils::vector_utils::Ray;
-use cgmath::Vector3;
+use cgmath::{InnerSpace, Vector3};
 use sdl2::pixels::Color;
 use sdl2::rect::Point;
 use sdl2::render::Canvas;
 use sdl2::video::Window;
 use std::f32::MAX;
 
+const MAX_DEPTH: i32 = 50;
+
+pub fn ray_trace(scene: &Scene, ray: &Ray) -> Vector3<f32> {
+    return ray_trace_rec(scene, ray, 0);
+ }
+
 // Casts a ray and returns the color
-pub fn ray_trace(scene: &Scene, ray: &Ray, bounces: i32) -> Vector3<f32> {
+pub fn ray_trace_rec(scene: &Scene, ray: &Ray, bounces: i32) -> Vector3<f32> {
+
     let main_sphere = scene.objects.first();
     let mut hit = None;
 
@@ -20,22 +27,28 @@ pub fn ray_trace(scene: &Scene, ray: &Ray, bounces: i32) -> Vector3<f32> {
         hit = sphere.intersect(ray, (0.001, MAX));
     }
 
-    if hit.is_none() {
-        return Vector3 {
-            x: 0.0,
-            y: 200.0,
-            z: 0.0,
-        };
+    if hit.is_some() && bounces < MAX_DEPTH {
+        let some_hit = hit.unwrap();
+
+        // let bounced_ray = some_hit.scatter(ray); 
+        return some_hit.material.color;
     } else {
-        return Vector3 {
-            x: 200.0,
-            y: 0.0, 
-            z: 0.0,
-        }
+        // Render background
+        let t = (0.5) * (ray.direction.normalize().y + 1.0);
+        // Lerp gradient from white to blue-ish
+        return (1.0 - t)
+            * Vector3 { // white
+                x: 255.0,
+                y: 255.0,
+                z: 255.0,
+            }
+            + t * Vector3 { // blue-ish
+                x: 128.0,
+                y: 200.0,
+                z: 255.0,
+            };
     }
-}    
-
-
+}
 
 pub fn render_pass(scene: &Scene, screen: Option<Box<Screen>>) -> Box<Screen> {
     let mut new_screen: Box<Screen>;
@@ -55,7 +68,7 @@ pub fn render_pass(scene: &Scene, screen: Option<Box<Screen>>) -> Box<Screen> {
     for y in 0..HEIGHT {
         for x in 0..WIDTH {
             let ray = scene.shoot_ray(x as f32 / WIDTH as f32, y as f32 / HEIGHT as f32);
-            let color: Vector3<f32> = ray_trace(scene, &ray, 10);
+            let color: Vector3<f32> = ray_trace(scene, &ray);
             new_screen[y][x] = color;
         }
     }

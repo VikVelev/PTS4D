@@ -1,6 +1,6 @@
 use cgmath::Vector3;
 
-use crate::object::material::Material;
+use crate::materials::material::Material;
 
 pub struct Ray {
     pub origin: Vector3<f32>,

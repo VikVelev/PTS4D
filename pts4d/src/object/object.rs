@@ -1,4 +1,4 @@
-use crate::object::material::Material;
+use crate::materials::material::Material;
 use crate::utils::vector_utils::{Intersect, Ray};
 
 use cgmath::{dot, Vector3};
