@@ -23,7 +23,7 @@ mod utils {
 mod renderer;
 
 use crate::scene::scene::Scene;
-use crate::scene::screen::{self, Screen};
+use crate::scene::screen::{self};
 use crate::utils::rendering_utils::present_screen;
 use crate::utils::scene_builders;
 
