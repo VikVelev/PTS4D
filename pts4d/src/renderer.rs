@@ -1,9 +1,11 @@
-use crate::object::object::{Hitable, Object};
+use crate::materials::material::{Metallic, Reflective};
+use crate::object::object::Hitable;
 use crate::scene::scene::Scene;
 use crate::scene::screen::Screen;
 use crate::scene::screen::{HEIGHT, WIDTH};
-use crate::utils::vector_utils::Ray;
-use cgmath::{InnerSpace, Vector3};
+use crate::utils::scene_builders::generate_sky;
+use crate::utils::vector_utils::{Hit, Ray};
+use cgmath::Vector3;
 use sdl2::pixels::Color;
 use sdl2::rect::Point;
 use sdl2::render::Canvas;
@@ -14,14 +16,14 @@ const MAX_DEPTH: i32 = 50;
 
 pub fn ray_trace(scene: &Scene, ray: &Ray) -> Vector3<f32> {
     return ray_trace_rec(scene, ray, 0);
- }
+}
 
-// Casts a ray and returns the color
+// Recursively ray-trace until the number of bounces has reached MAX_DEPTH
 pub fn ray_trace_rec(scene: &Scene, ray: &Ray, bounces: i32) -> Vector3<f32> {
-
     let main_sphere = scene.objects.first();
-    let mut hit = None;
+    let mut hit: Option<Hit<Metallic>> = None;
 
+    // TODO: Generalize this for all kinds of objects
     if main_sphere.is_some() {
         let sphere = main_sphere.unwrap();
         hit = sphere.intersect(ray, (0.001, MAX));
@@ -29,24 +31,11 @@ pub fn ray_trace_rec(scene: &Scene, ray: &Ray, bounces: i32) -> Vector3<f32> {
 
     if hit.is_some() && bounces < MAX_DEPTH {
         let some_hit = hit.unwrap();
+        // let bounced_ray = some_hit.material.scatter(ray);
 
-        // let bounced_ray = some_hit.scatter(ray); 
         return some_hit.material.color;
     } else {
-        // Render background
-        let t = (0.5) * (ray.direction.normalize().y + 1.0);
-        // Lerp gradient from white to blue-ish
-        return (1.0 - t)
-            * Vector3 { // white
-                x: 255.0,
-                y: 255.0,
-                z: 255.0,
-            }
-            + t * Vector3 { // blue-ish
-                x: 128.0,
-                y: 200.0,
-                z: 255.0,
-            };
+        return generate_sky(ray);
     }
 }
 

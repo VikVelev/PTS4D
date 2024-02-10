@@ -1,6 +1,6 @@
 use cgmath::Vector3;
 
-use crate::materials::material::Material;
+use crate::materials::material::Reflective;
 
 pub struct Ray {
     pub origin: Vector3<f32>,
@@ -13,8 +13,8 @@ impl Ray {
     }
 }
 
-pub struct Intersect {
-    // Given a vector 
+pub struct Hit<'a, MaterialType: Reflective> {
+    // Given a vector
     // a --- (p) ------> b
     // (p) denotes a constant where a ray is being intersected with something else.
     pub point_at_intersection: f32,
@@ -27,5 +27,5 @@ pub struct Intersect {
     pub normal: Vector3<f32>,
 
     // Material, expressing what has been hit
-    pub material: Material
+    pub material: &'a MaterialType,
 }

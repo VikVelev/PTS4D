@@ -1,13 +1,12 @@
-use cgmath::{Array, ElementWise, Vector3};
-
-use crate::object::object::{Object, Sphere};
+use crate::materials::material::Metallic;
+use crate::object::object::Sphere;
 use crate::scene::camera::Camera;
 use crate::utils::vector_utils::Ray;
 
 const NUM_OF_OBJECTS: usize = 1;
 
 pub struct Scene {
-    pub objects: [Sphere; NUM_OF_OBJECTS],
+    pub objects: [Sphere<Metallic>; NUM_OF_OBJECTS],
     pub camera: Camera,
 }
 
