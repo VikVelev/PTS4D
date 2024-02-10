@@ -23,11 +23,8 @@ pub struct Camera {
     first_pixel_location: Vector3<f32>,
     horizontal: Vector3<f32>,
     vertical: Vector3<f32>,
-    u: Vector3<f32>,
     pixel_delta_u: Vector3<f32>,
-    v: Vector3<f32>,
     pixel_delta_v: Vector3<f32>,
-    w: Vector3<f32>,
 }
 
 impl Camera {
@@ -68,11 +65,8 @@ impl Camera {
             first_pixel_location,
             horizontal: viewport_width * u,
             vertical: viewport_height * v,
-            u,
             pixel_delta_u,
-            v,
             pixel_delta_v,
-            w,
         };
     }
 

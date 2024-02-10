@@ -23,7 +23,7 @@ impl Reflective for Metallic {
         return self.albedo;
     }
 
-    fn scatter(&self, ray_in: &Ray, hit: &Hit<impl Reflective>) -> Option<(Ray, Vector3<f32>)> {
+    fn scatter(&self, _ray_in: &Ray, _hit: &Hit<impl Reflective>) -> Option<(Ray, Vector3<f32>)> {
         todo!()
     }
 }

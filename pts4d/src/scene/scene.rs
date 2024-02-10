@@ -1,7 +1,4 @@
-use cgmath::Vector3;
-use rand::Rng;
-
-use crate::materials::material::{Lambertian, Metallic};
+use crate::materials::material::Lambertian;
 use crate::object::object::Sphere;
 use crate::scene::camera::Camera;
 use crate::utils::vector_utils::Ray;

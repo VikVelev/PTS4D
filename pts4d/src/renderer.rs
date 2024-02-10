@@ -1,19 +1,15 @@
-use crate::materials::material::{Lambertian, Metallic, Reflective};
+use crate::materials::material::{Lambertian, Reflective};
 use crate::object::object::Hitable;
 use crate::scene::scene::Scene;
 use crate::scene::screen::Screen;
 use crate::scene::screen::{HEIGHT, WIDTH};
+use crate::utils::rendering_utils::preprocess_color;
 use crate::utils::scene_builders::generate_sky;
 use crate::utils::vector_utils::{Hit, Ray};
 use cgmath::{ElementWise, Vector3};
-use sdl2::libc::close;
-use sdl2::pixels::Color;
-use sdl2::rect::Point;
-use sdl2::render::Canvas;
-use sdl2::video::Window;
 use std::f32::MAX;
 
-const MAX_DEPTH: i32 = 10;
+const MAX_DEPTH: i32 = 2;
 const SAMPLES_PER_PIXEL: i32 = 5;
 
 pub fn ray_trace(scene: &Scene, ray: &Ray) -> Vector3<f32> {
@@ -56,6 +52,7 @@ pub fn ray_trace_rec(scene: &Scene, ray: &Ray, bounces: i32) -> Vector3<f32> {
     }
 }
 
+
 pub fn render_pass(scene: &Scene, screen: Option<Box<Screen>>) -> Box<Screen> {
     let mut new_screen: Box<Screen>;
 
@@ -76,28 +73,12 @@ pub fn render_pass(scene: &Scene, screen: Option<Box<Screen>>) -> Box<Screen> {
             let mut color: Vector3<f32> = Vector3 { x: 0.0, y: 0.0, z: 0.0 };
             for _ in 0..SAMPLES_PER_PIXEL {
                 let ray = scene.shoot_ray(x as f32 / WIDTH as f32, y as f32 / HEIGHT as f32);
-                color += ray_trace(scene, &ray) / SAMPLES_PER_PIXEL as f32;
+                color += ray_trace(scene, &ray);
             }
-            new_screen[y][x] = color;
+            new_screen[y][x] = preprocess_color(color, SAMPLES_PER_PIXEL);
         }
     }
 
     return new_screen;
 }
 
-pub fn present_screen(screen: Box<Screen>, sdl_canvas: &mut Canvas<Window>) {
-    for (y, row) in screen.iter().enumerate() {
-        for (x, pixel) in row.iter().enumerate() {
-            sdl_canvas.set_draw_color(Color {
-                r: pixel.x as u8,
-                g: pixel.y as u8,
-                b: pixel.z as u8,
-                a: 0,
-            });
-            sdl_canvas
-                .draw_point(Point::new(x as i32, y as i32))
-                .unwrap();
-        }
-    }
-    sdl_canvas.present();
-}

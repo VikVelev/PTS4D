@@ -1,7 +1,7 @@
 use crate::materials::material::Reflective;
 use crate::utils::vector_utils::{Hit, Ray};
 
-use cgmath::{dot, Vector3};
+use cgmath::{dot, InnerSpace, Vector3};
 
 pub trait Hitable: Sized {
     type Material: Reflective;
@@ -38,7 +38,7 @@ impl<Mat: Reflective> Hitable for Sphere<Mat> {
                 return Some(Hit {
                     point_at_intersection: x1,
                     point: ray.point_at(x1),
-                    normal: (ray.point_at(x1) - self.center) / self.radius,
+                    normal: correct_face_normal(ray, (ray.point_at(x1) - self.center) / self.radius),
                     material: &self.material,
                 });
             }
@@ -48,7 +48,7 @@ impl<Mat: Reflective> Hitable for Sphere<Mat> {
                 return Some(Hit {
                     point_at_intersection: x2,
                     point: ray.point_at(x2),
-                    normal: (ray.point_at(x2) - self.center) / self.radius,
+                    normal: correct_face_normal(ray, (ray.point_at(x2) - self.center) / self.radius),
                     material: &self.material,
                 });
             }
@@ -58,4 +58,12 @@ impl<Mat: Reflective> Hitable for Sphere<Mat> {
     }
 
     type Material = Mat;
+}
+
+fn correct_face_normal(ray: &Ray, normal: Vector3<f32>) -> Vector3<f32> {
+    if ray.direction.dot(normal) < 0.0 {
+        return normal;
+    } else {
+        return -normal;
+    }
 }

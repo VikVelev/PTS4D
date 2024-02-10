@@ -17,15 +17,17 @@ mod scene {
 mod utils {
     pub mod scene_builders;
     pub mod vector_utils;
+    pub mod rendering_utils;
 }
 
 mod renderer;
 
 use crate::scene::scene::Scene;
 use crate::scene::screen::{self, Screen};
+use crate::utils::rendering_utils::present_screen;
 use crate::utils::scene_builders;
 
-use renderer::{present_screen, render_pass};
+use renderer::render_pass;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::pixels::Color;

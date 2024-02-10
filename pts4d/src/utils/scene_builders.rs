@@ -1,6 +1,6 @@
 use cgmath::{InnerSpace, Vector3, VectorSpace};
 
-use crate::materials::material::{Lambertian, Metallic};
+use crate::materials::material::Lambertian;
 use crate::object::object::Sphere;
 use crate::scene::camera::Camera;
 use crate::scene::scene::Scene;
@@ -35,7 +35,7 @@ pub fn generate_scene() -> Scene {
         radius: 5.0,
         material: Lambertian {
             albedo: Vector3 {
-                x: 255.0,
+                x: 1.0,
                 y: 0.0,
                 z: 0.0,
             },
@@ -51,9 +51,9 @@ pub fn generate_scene() -> Scene {
         radius: 500.0,
         material: Lambertian {
             albedo: Vector3 {
-                x: 0.0,
-                y: 160.0,
-                z: 0.0,
+                x: 0.9,
+                y: 0.9,
+                z: 0.1,
             },
         },
     };
@@ -68,16 +68,16 @@ pub fn generate_sky(ray: &Ray) -> Vector3<f32> {
     let t = (0.5) * (ray.direction.normalize().y + 1.0);
     let white = Vector3 {
         // white
-        x: 255.0,
-        y: 255.0,
-        z: 255.0,
+        x: 1.0,
+        y: 1.0,
+        z: 1.0,
     };
 
     let blueish = Vector3 {
         // blue-ish
-        x: 60.0,
-        y: 200.0,
-        z: 255.0,
+        x: 0.25,
+        y: 0.75,
+        z: 1.0,
     };
     // Lerp gradient from white to blue-ish
     return white.lerp(blueish, t);
