@@ -1,6 +1,4 @@
-use std::ops::{Add, AddAssign};
-
-use cgmath::{ElementWise, Vector3};
+use cgmath::Vector3;
 use sdl2::{pixels::Color, rect::Point, render::Canvas, video::Window};
 
 use crate::scene::screen::{Screen, HEIGHT, WIDTH};
@@ -49,8 +47,12 @@ pub fn present_screen(screen: Box<Screen>, sdl_canvas: &mut Canvas<Window>, iter
 }
 
 fn add_rows(row1: &[Vector3<f32>; WIDTH], row2: &[Vector3<f32>; WIDTH]) -> [Vector3<f32>; WIDTH] {
-    let mut new_row = [Vector3 { x: 0.0, y: 0.0, z: 0.0}; WIDTH];
-    
+    let mut new_row = [Vector3 {
+        x: 0.0,
+        y: 0.0,
+        z: 0.0,
+    }; WIDTH];
+
     for (i, (left, right)) in row1.iter().zip(row2).enumerate() {
         new_row[i] = left + right;
     }
@@ -59,8 +61,11 @@ fn add_rows(row1: &[Vector3<f32>; WIDTH], row2: &[Vector3<f32>; WIDTH]) -> [Vect
 }
 
 pub fn add_screens(screen1: Box<Screen>, screen2: Box<Screen>) -> Box<Screen> {
-
-    let mut new_screen = [[Vector3 { x: 0.0, y: 0.0, z: 0.0}; WIDTH]; HEIGHT];
+    let mut new_screen = [[Vector3 {
+        x: 0.0,
+        y: 0.0,
+        z: 0.0,
+    }; WIDTH]; HEIGHT];
 
     let mut screen1_iter = screen1.iter();
     let mut screen2_iter = screen2.iter();

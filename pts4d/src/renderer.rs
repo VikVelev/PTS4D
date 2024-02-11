@@ -9,8 +9,8 @@ use crate::utils::vector_utils::{Hit, Ray};
 use cgmath::{ElementWise, Vector3};
 use std::f32::MAX;
 
-const MAX_DEPTH: i32 = 2;
-const SAMPLES_PER_PIXEL: i32 = 1;
+const MAX_DEPTH: i32 = 5;
+const SAMPLES_PER_PIXEL: i32 = 100;
 
 pub fn ray_trace(scene: &Scene, ray: &Ray) -> Vector3<f32> {
     return ray_trace_rec(scene, ray, 0);
