@@ -1,6 +1,6 @@
-use cgmath::Vector3;
+use cgmath::{InnerSpace, Vector3};
 
-use crate::utils::vector_utils::{random_point_in_unit_sphere, Hit, Ray};
+use crate::utils::vector_utils::{is_close_to_zero, random_point_in_unit_sphere, Hit, Ray};
 
 pub trait Reflective {
     fn set_color(&mut self, color: Vector3<f32>) -> ();
@@ -42,12 +42,16 @@ impl Reflective for Lambertian {
     }
 
     fn scatter(&self, _ray_in: &Ray, hit: &Hit<impl Reflective>) -> Option<(Ray, Vector3<f32>)> {
-        let target = hit.point + hit.normal + random_point_in_unit_sphere();
+        let mut scatter_direction =  hit.normal + random_point_in_unit_sphere().normalize();
+
+        if is_close_to_zero(scatter_direction) {
+            scatter_direction = hit.normal;
+        }
 
         return Some((
             Ray {
                 origin: hit.point,
-                direction: target - hit.point,
+                direction: scatter_direction,
             },
             self.albedo,
         ));

@@ -23,10 +23,11 @@ mod utils {
 mod renderer;
 
 use crate::scene::scene::Scene;
-use crate::scene::screen::{self};
-use crate::utils::rendering_utils::present_screen;
+use crate::scene::screen::{self, HEIGHT, WIDTH};
+use crate::utils::rendering_utils::{add_screens, present_screen};
 use crate::utils::scene_builders;
 
+use cgmath::Vector3;
 use renderer::render_pass;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
@@ -61,6 +62,13 @@ pub fn main() -> Result<(), String> {
 
     // Keep track of iterations
     let mut i = 0;
+    let mut all_frames = Box::new(
+        [[Vector3 {
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+        }; WIDTH]; HEIGHT],
+    );
 
     'running: loop {
         let start_time = Instant::now();
@@ -74,17 +82,17 @@ pub fn main() -> Result<(), String> {
                 _ => {}
             }
         }
-
-        let current_frame = Some(render_pass(&scene));
-        present_screen(current_frame.unwrap(), &mut canvas);
-
         i += 1;
-        let end_time = (Instant::now() - start_time).as_millis();
+
+        all_frames = add_screens(all_frames, render_pass(&scene)) ;
+        present_screen(all_frames.clone(), &mut canvas, i);
+        
+        let end_time = Instant::now() - start_time;
         println!(
-            "Frame {} in {:?}ms - {} FPS",
+            "Frame {} in {:?} - {} FPS",
             i,
             end_time,
-            1000.0 / end_time as f32
+            1000.0 / end_time.as_millis() as f32
         );
     }
 

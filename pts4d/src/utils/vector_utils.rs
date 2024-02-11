@@ -47,10 +47,18 @@ pub fn random_point_in_unit_sphere() -> Vector3<f32> {
                 z: 1.0,
             };
 
-        if temp.magnitude2() >= 1.0 {
+        if temp.magnitude2() < 1.0 {
             break temp;
         };
     };
 
     return vec;
+}
+
+pub fn is_close_to_zero(vector: Vector3<f32>) -> bool {
+    let limit = 0.000001;
+    if vector.x.abs() < limit && vector.y.abs() < limit && vector.y.abs() < limit {
+        return true;
+    }
+    return false;
 }
