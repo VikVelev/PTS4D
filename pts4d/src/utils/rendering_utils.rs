@@ -29,7 +29,7 @@ pub fn preprocess_color(color: Vector3<f32>, samples_per_pixel: i32) -> Vector3<
     };
 }
 
-pub fn present_screen(screen: Box<Screen>, sdl_canvas: &mut Canvas<Window>, iteration: i32) {
+pub fn present_screen(screen: &Box<Screen>, sdl_canvas: &mut Canvas<Window>, iteration: i32) {
     for (y, row) in screen.iter().enumerate() {
         for (x, pixel) in row.iter().enumerate() {
             sdl_canvas.set_draw_color(Color {

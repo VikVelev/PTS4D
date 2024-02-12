@@ -1,5 +1,5 @@
 use crate::materials::material::Lambertian;
-use crate::object::object::{Mesh, Sphere};
+use crate::object::object::Mesh;
 use crate::scene::camera::Camera;
 use crate::utils::vector_utils::Ray;
 

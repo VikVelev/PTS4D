@@ -128,20 +128,20 @@ impl<M: Reflective> Mesh<M> {
         if v < 0.0 || u + v > 1.0 {
             return None;
         }
+        
         // At this stage we can compute t to find out where the intersection point is on the line.
         let t = inv_det * e2.dot(s_cross_e1);
-
         if t > bounds.1 || t < bounds.0 {
             return None;
         }
 
         if t > f32::EPSILON {
-            // ray intersection
             let intersection_point = ray.origin + ray.direction * t;
+
             return Some(Hit {
                 point: intersection_point,
                 material: &self.material,
-                normal: correct_face_normal(ray, (b - a).cross(c - a).normalize()),
+                normal: correct_face_normal(ray, (e1).cross(e2).normalize()),
                 point_at_intersection: t,
             });
         } else {

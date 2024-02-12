@@ -88,7 +88,7 @@ pub fn main() -> Result<(), String> {
         i += 1;
 
         all_frames = add_screens(all_frames, render_pass(&scene)) ;
-        present_screen(all_frames.clone(), &mut canvas, i);
+        present_screen(&all_frames, &mut canvas, i);
         
         let end_time = Instant::now() - start_time;
         println!(

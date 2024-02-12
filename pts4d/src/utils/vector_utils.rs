@@ -15,7 +15,7 @@ impl Ray {
     }
 }
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Debug)]
 pub struct Hit<'a, MaterialType: Reflective> {
     // Given a vector
     // a --- (p) ------> b

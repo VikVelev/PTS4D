@@ -5,7 +5,7 @@ use wavefront_obj::obj::ObjSet;
 
 use crate::materials::material::Lambertian;
 use crate::object::object::{Mesh, Sphere};
-use crate::scene::camera::{self, Camera};
+use crate::scene::camera::Camera;
 use crate::scene::scene::Scene;
 use crate::scene::screen::{HEIGHT, WIDTH};
 
@@ -28,14 +28,16 @@ pub fn load_and_parse_obj(path: &str) -> ObjSet {
 
 // Creates a scene including complex polygon models.
 pub fn generate_polygon_scene(path: &str) -> Scene {
-    let lambo = load_and_parse_obj(path);
+    let mesh = load_and_parse_obj(path);
     let look_from = Vector3 {
         x: 2.0,
         y: 0.5,
         z: 4.0,
     };
     let look_at = Vector3 {
-        x: 0.0, y: 0.0, z: 0.0
+        x: 0.0,
+        y: 0.0,
+        z: 0.0,
     };
     let up = Vector3 {
         x: 0.0,
@@ -46,7 +48,7 @@ pub fn generate_polygon_scene(path: &str) -> Scene {
 
     return Scene {
         objects: [Mesh {
-            geometry: lambo,
+            geometry: mesh,
             material: Lambertian {
                 albedo: Vector3 {
                     x: 1.0,
@@ -59,7 +61,7 @@ pub fn generate_polygon_scene(path: &str) -> Scene {
     };
 }
 
-pub fn generate_scene() -> Scene {
+pub fn _generate_scene() -> Scene {
     let look_from = Vector3 {
         x: 0.0,
         y: 5.0,
@@ -75,9 +77,9 @@ pub fn generate_scene() -> Scene {
         y: -1.0, // TODO: wtf???
         z: 0.0,
     };
-    let camera: Camera = Camera::new(HEIGHT as f32, WIDTH as f32, 40.0, look_from, look_at, up);
+    let _camera: Camera = Camera::new(HEIGHT as f32, WIDTH as f32, 40.0, look_from, look_at, up);
 
-    let ground_sphere = Sphere {
+    let _ground_sphere = Sphere {
         center: Vector3 {
             x: 0.0,
             y: 5.0,
@@ -93,7 +95,7 @@ pub fn generate_scene() -> Scene {
         },
     };
 
-    let main_sphere = Sphere {
+    let _main_sphere = Sphere {
         center: Vector3 {
             x: 0.0,
             y: -500.0,
