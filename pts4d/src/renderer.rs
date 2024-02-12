@@ -10,7 +10,7 @@ use cgmath::{ElementWise, Vector3};
 use rayon::prelude::*;
 use std::f32::MAX;
 
-const MAX_DEPTH: i32 = 2;
+const MAX_DEPTH: i32 = 3;
 const SAMPLES_PER_PIXEL: i32 = 1;
 
 pub fn ray_trace(scene: &Scene, ray: &Ray) -> Vector3<f32> {
@@ -67,14 +67,14 @@ fn convert_vec_to_arr<T, const N: usize>(v: Vec<T>) -> [T; N] {
     });
 }
 
-pub fn render_pass(scene: &Scene) -> Box<Screen> {
-    let mut new_screen = Box::new(
-        [[Vector3 {
+pub fn render_pass(scene: &Scene) -> Screen {
+    println!("Rendering!");
+
+    let mut new_screen = vec![[Vector3 {
             x: 0.0,
             y: 0.0,
             z: 0.0,
-        }; WIDTH]; HEIGHT],
-    );
+        }; WIDTH]; HEIGHT];
 
     for y in 0..HEIGHT {
         // Create an array of all x coordinates for a specific row

@@ -15,9 +15,9 @@ mod scene {
 }
 
 mod utils {
+    pub mod rendering_utils;
     pub mod scene_builders;
     pub mod vector_utils;
-    pub mod rendering_utils;
 }
 
 mod renderer;
@@ -65,13 +65,14 @@ pub fn main() -> Result<(), String> {
     let mut i = 0;
 
     // Keeps the sum of all colors across all iterations
-    let mut all_frames = Box::new(
-        [[Vector3 {
+    let mut all_frames = vec![
+        [Vector3 {
             x: 0.0,
             y: 0.0,
             z: 0.0,
-        }; WIDTH]; HEIGHT],
-    );
+        }; WIDTH];
+        HEIGHT
+    ];
 
     'running: loop {
         let start_time = Instant::now();
@@ -86,10 +87,9 @@ pub fn main() -> Result<(), String> {
             }
         }
         i += 1;
-
-        all_frames = add_screens(all_frames, render_pass(&scene)) ;
+        all_frames = add_screens(all_frames, render_pass(&scene));
         present_screen(&all_frames, &mut canvas, i);
-        
+
         let end_time = Instant::now() - start_time;
         println!(
             "Frame {} in {:?} - {} FPS",

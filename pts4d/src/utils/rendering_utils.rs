@@ -29,7 +29,7 @@ pub fn preprocess_color(color: Vector3<f32>, samples_per_pixel: i32) -> Vector3<
     };
 }
 
-pub fn present_screen(screen: &Box<Screen>, sdl_canvas: &mut Canvas<Window>, iteration: i32) {
+pub fn present_screen(screen: &Screen, sdl_canvas: &mut Canvas<Window>, iteration: i32) {
     for (y, row) in screen.iter().enumerate() {
         for (x, pixel) in row.iter().enumerate() {
             sdl_canvas.set_draw_color(Color {
@@ -60,8 +60,8 @@ fn add_rows(row1: &[Vector3<f32>; WIDTH], row2: &[Vector3<f32>; WIDTH]) -> [Vect
     return new_row;
 }
 
-pub fn add_screens(screen1: Box<Screen>, screen2: Box<Screen>) -> Box<Screen> {
-    let mut new_screen = [[Vector3 {
+pub fn add_screens(screen1: Screen, screen2: Screen) -> Screen {
+    let mut new_screen = vec![[Vector3 {
         x: 0.0,
         y: 0.0,
         z: 0.0,
@@ -84,5 +84,5 @@ pub fn add_screens(screen1: Box<Screen>, screen2: Box<Screen>) -> Box<Screen> {
         n_row += 1;
     }
 
-    return Box::new(new_screen);
+    return new_screen;
 }
