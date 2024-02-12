@@ -8,5 +8,6 @@ edition = "2021"
 [dependencies]
 cgmath = { version = "0.18.0", features = ["swizzle"] }
 rand = "0.8.5"
+rayon = "1.8.1"
 sdl2 = "0.36.0"
 wavefront_obj = "10.0.0"

@@ -7,6 +7,7 @@ use crate::utils::rendering_utils::preprocess_color;
 use crate::utils::scene_builders::generate_sky;
 use crate::utils::vector_utils::{Hit, Ray};
 use cgmath::{ElementWise, Vector3};
+use rayon::prelude::*;
 use std::f32::MAX;
 
 const MAX_DEPTH: i32 = 2;
@@ -56,8 +57,14 @@ pub fn ray_trace_rec(scene: &Scene, ray: &Ray, bounces: i32) -> Vector3<f32> {
             z: 0.0,
         };
     }
-    
+
     return generate_sky(ray);
+}
+
+fn convert_vec_to_arr<T, const N: usize>(v: Vec<T>) -> [T; N] {
+    return v.try_into().unwrap_or_else(|v: Vec<T>| {
+        panic!("Expected a Vec of length {} but it was {}", N, v.len())
+    });
 }
 
 pub fn render_pass(scene: &Scene) -> Box<Screen> {
@@ -70,20 +77,32 @@ pub fn render_pass(scene: &Scene) -> Box<Screen> {
     );
 
     for y in 0..HEIGHT {
-        for x in 0..WIDTH {
-            let mut color: Vector3<f32> = Vector3 {
-                x: 0.0,
-                y: 0.0,
-                z: 0.0,
-            };
-            for _ in 0..SAMPLES_PER_PIXEL {
-                let ray = scene.shoot_ray(x as f32 / WIDTH as f32, y as f32 / HEIGHT as f32);
-                color += ray_trace(scene, &ray);
-            }
-            new_screen[y][x] = preprocess_color(color, SAMPLES_PER_PIXEL);
-        }
-        // println!("{}/{}", y, HEIGHT);
+        // Create an array of all x coordinates for a specific row
+        // Execute a single_pixel_pass on all of them and collect()
+        // collect() preserves order so we can write it directly onto the screen
+        let x_row: Vec<Vector3<f32>> = (0..WIDTH)
+            .collect::<Vec<_>>()
+            .par_iter()
+            .map(|x| {
+                return single_pixel_pass(*x, y, scene);
+            })
+            .collect();
+        new_screen[y] = convert_vec_to_arr::<Vector3<f32>, WIDTH>(x_row);
     }
 
     return new_screen;
+}
+
+fn single_pixel_pass(x: usize, y: usize, scene: &Scene) -> Vector3<f32> {
+    let mut color: Vector3<f32> = Vector3 {
+        x: 0.0,
+        y: 0.0,
+        z: 0.0,
+    };
+    for _ in 0..SAMPLES_PER_PIXEL {
+        let ray = scene.shoot_ray(x as f32 / WIDTH as f32, y as f32 / HEIGHT as f32);
+        color += ray_trace(scene, &ray);
+    }
+
+    return preprocess_color(color, SAMPLES_PER_PIXEL);
 }
