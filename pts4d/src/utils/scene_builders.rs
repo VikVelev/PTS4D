@@ -1,12 +1,63 @@
+use std::fs;
+
 use cgmath::{InnerSpace, Vector3, VectorSpace};
+use wavefront_obj::obj::ObjSet;
 
 use crate::materials::material::Lambertian;
-use crate::object::object::Sphere;
-use crate::scene::camera::Camera;
+use crate::object::object::{Mesh, Sphere};
+use crate::scene::camera::{self, Camera};
 use crate::scene::scene::Scene;
 use crate::scene::screen::{HEIGHT, WIDTH};
 
 use super::vector_utils::Ray;
+
+// Loads an obj file into memory and parses it into an ObjSet
+pub fn load_and_parse_obj(path: &str) -> ObjSet {
+    let obj_string = fs::read_to_string(path);
+    if obj_string.is_err() {
+        panic!("There was an error opening and reading '{}'", path);
+    }
+
+    let loaded_obj = wavefront_obj::obj::parse(obj_string.unwrap());
+    if loaded_obj.is_err() {
+        panic!("There was an error parsing '{}'", path);
+    }
+
+    return loaded_obj.unwrap();
+}
+
+// Creates a scene including complex polygon models.
+pub fn generate_polygon_scene(path: &str) -> Scene {
+    let lambo = load_and_parse_obj(path);
+    let look_from = Vector3 {
+        x: 2.0,
+        y: 0.5,
+        z: 4.0,
+    };
+    let look_at = Vector3 {
+        x: 0.0, y: 0.0, z: 0.0
+    };
+    let up = Vector3 {
+        x: 0.0,
+        y: -1.0, // TODO: wtf???
+        z: 0.0,
+    };
+    let camera: Camera = Camera::new(HEIGHT as f32, WIDTH as f32, 40.0, look_from, look_at, up);
+
+    return Scene {
+        objects: [Mesh {
+            geometry: lambo,
+            material: Lambertian {
+                albedo: Vector3 {
+                    x: 1.0,
+                    y: 0.0,
+                    z: 0.0,
+                },
+            },
+        }],
+        camera,
+    };
+}
 
 pub fn generate_scene() -> Scene {
     let look_from = Vector3 {
@@ -57,11 +108,11 @@ pub fn generate_scene() -> Scene {
             },
         },
     };
-
-    return Scene {
-        objects: [main_sphere, ground_sphere],
-        camera,
-    };
+    todo!();
+    // return Scene {
+    //     objects: [main_sphere, ground_sphere],
+    //     camera,
+    // };
 }
 
 pub fn generate_sky(ray: &Ray) -> Vector3<f32> {

@@ -9,7 +9,7 @@ use crate::utils::vector_utils::{Hit, Ray};
 use cgmath::{ElementWise, Vector3};
 use std::f32::MAX;
 
-const MAX_DEPTH: i32 = 5;
+const MAX_DEPTH: i32 = 2;
 const SAMPLES_PER_PIXEL: i32 = 1;
 
 pub fn ray_trace(scene: &Scene, ray: &Ray) -> Vector3<f32> {
@@ -30,8 +30,8 @@ pub fn ray_trace_rec(scene: &Scene, ray: &Ray, bounces: i32) -> Vector3<f32> {
     let mut closest_intersection_point: f32 = MAX;
 
     for obj in &scene.objects {
-        let main_sphere = obj;
-        let temp_closest_hit = main_sphere.intersect(ray, (0.001, closest_intersection_point));
+        let curr_obj = obj;
+        let temp_closest_hit = curr_obj.intersect(ray, (0.01, closest_intersection_point));
         if temp_closest_hit.is_some() {
             let closest_hit = temp_closest_hit.unwrap();
             closest_intersection_point = closest_hit.point_at_intersection;
@@ -45,7 +45,9 @@ pub fn ray_trace_rec(scene: &Scene, ray: &Ray, bounces: i32) -> Vector3<f32> {
 
         if maybe_bounced_ray.is_some() {
             let (bounced_ray, attenuation) = maybe_bounced_ray.unwrap();
-            return attenuation.mul_element_wise(ray_trace_rec(scene, &bounced_ray, bounces + 1));
+            let color = ray_trace_rec(scene, &bounced_ray, bounces + 1);
+            // println!("{:?}, {:?}", attenuation, color);
+            return attenuation.mul_element_wise(color);
         }
 
         return Vector3 {
@@ -80,6 +82,7 @@ pub fn render_pass(scene: &Scene) -> Box<Screen> {
             }
             new_screen[y][x] = preprocess_color(color, SAMPLES_PER_PIXEL);
         }
+        // println!("{}/{}", y, HEIGHT);
     }
 
     return new_screen;

@@ -58,10 +58,13 @@ pub fn main() -> Result<(), String> {
     let mut event_pump = sdl_context.event_pump()?;
 
     // Initialize PTS4D World
-    let scene: Scene = scene_builders::generate_scene();
+    // let scene: Scene = scene_builders::generate_scene();
+    let scene: Scene = scene_builders::generate_polygon_scene("./objs/chill/monkey.obj");
 
     // Keep track of iterations
     let mut i = 0;
+
+    // Keeps the sum of all colors across all iterations
     let mut all_frames = Box::new(
         [[Vector3 {
             x: 0.0,

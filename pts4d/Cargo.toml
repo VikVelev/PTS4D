@@ -9,3 +9,4 @@ edition = "2021"
 cgmath = { version = "0.18.0", features = ["swizzle"] }
 rand = "0.8.5"
 sdl2 = "0.36.0"
+wavefront_obj = "10.0.0"

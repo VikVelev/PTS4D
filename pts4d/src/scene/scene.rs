@@ -1,12 +1,13 @@
 use crate::materials::material::Lambertian;
-use crate::object::object::Sphere;
+use crate::object::object::{Mesh, Sphere};
 use crate::scene::camera::Camera;
 use crate::utils::vector_utils::Ray;
 
-const NUM_OF_OBJECTS: usize = 2;
+const NUM_OF_OBJECTS: usize = 1;
 
 pub struct Scene {
-    pub objects: [Sphere<Lambertian>; NUM_OF_OBJECTS],
+    // pub objects: [Sphere<Lambertian>; NUM_OF_OBJECTS],
+    pub objects: [Mesh<Lambertian>; NUM_OF_OBJECTS],
     pub camera: Camera,
 }
 

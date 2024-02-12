@@ -62,3 +62,11 @@ pub fn is_close_to_zero(vector: Vector3<f32>) -> bool {
     }
     return false;
 }
+
+pub fn correct_face_normal(ray: &Ray, normal: Vector3<f32>) -> Vector3<f32> {
+    if ray.direction.dot(normal) < 0.0 {
+        return normal;
+    } else {
+        return -normal;
+    }
+}

@@ -1,6 +1,6 @@
 use cgmath::Vector3;
 
-pub const WIDTH: usize = 640;
-pub const HEIGHT: usize = 360;
+pub const WIDTH: usize = 178*3;
+pub const HEIGHT: usize = 100*3;
 
 pub type Screen = [[Vector3<f32>; WIDTH]; HEIGHT];
