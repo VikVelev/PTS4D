@@ -32,23 +32,18 @@ pub fn ray_trace_rec(scene: &Scene, ray: &Ray, bounces: i32) -> Vector3<f32> {
 
     for obj in &scene.objects {
         let curr_obj = obj;
-        let temp_closest_hit = curr_obj.intersect(ray, (0.01, closest_intersection_point));
-        if temp_closest_hit.is_some() {
-            let closest_hit = temp_closest_hit.unwrap();
+        let temp_closest_hit = curr_obj.intersect(ray, (0.001, closest_intersection_point));
+        if let Some(closest_hit) = temp_closest_hit {
             closest_intersection_point = closest_hit.point_at_intersection;
             hit = Some(closest_hit);
         }
     }
 
-    if hit.is_some() {
-        let some_hit = hit.unwrap();
-        let maybe_bounced_ray = some_hit.material.scatter(ray, &some_hit);
+    if let Some(hit) = hit {
+        let maybe_bounced_ray = hit.material.scatter(ray, &hit);
 
-        if maybe_bounced_ray.is_some() {
-            let (bounced_ray, attenuation) = maybe_bounced_ray.unwrap();
-            let color = ray_trace_rec(scene, &bounced_ray, bounces + 1);
-            // println!("{:?}, {:?}", attenuation, color);
-            return attenuation.mul_element_wise(color);
+        if let Some((bounced_ray, attenuation)) = maybe_bounced_ray {
+            return attenuation.mul_element_wise(ray_trace_rec(scene, &bounced_ray, bounces + 1));
         }
 
         return Vector3 {
@@ -68,13 +63,14 @@ fn convert_vec_to_arr<T, const N: usize>(v: Vec<T>) -> [T; N] {
 }
 
 pub fn render_pass(scene: &Scene) -> Screen {
-    println!("Rendering!");
-
-    let mut new_screen = vec![[Vector3 {
+    let mut new_screen = vec![
+        [Vector3 {
             x: 0.0,
             y: 0.0,
             z: 0.0,
-        }; WIDTH]; HEIGHT];
+        }; WIDTH];
+        HEIGHT
+    ];
 
     for y in 0..HEIGHT {
         // Create an array of all x coordinates for a specific row

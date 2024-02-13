@@ -59,7 +59,7 @@ pub fn main() -> Result<(), String> {
 
     // Initialize PTS4D World
     // let scene: Scene = scene_builders::generate_scene();
-    let scene: Scene = scene_builders::generate_polygon_scene("./objs/chill/monkey.obj");
+    let scene: Scene = scene_builders::generate_polygon_scene("./objs/chill/triangles.obj");
 
     // Keep track of iterations
     let mut i = 0;

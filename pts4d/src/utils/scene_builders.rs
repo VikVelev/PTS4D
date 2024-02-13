@@ -30,9 +30,9 @@ pub fn load_and_parse_obj(path: &str) -> ObjSet {
 pub fn generate_polygon_scene(path: &str) -> Scene {
     let mesh = load_and_parse_obj(path);
     let look_from = Vector3 {
-        x: 1.0,
-        y: 0.5,
-        z: 2.0,
+        x: 5.0,
+        y: 2.0,
+        z: 5.0,
     };
     let look_at = Vector3 {
         x: 0.0,

@@ -35,7 +35,7 @@ pub struct Hit<'a, MaterialType: Reflective> {
 
 pub fn random_point_in_unit_sphere() -> Vector3<f32> {
     let mut rng = rand::thread_rng();
-    let vec: Vector3<f32> = loop {
+    return loop {
         let temp =
             2.0 * Vector3 {
                 x: rng.gen::<f32>(),
@@ -51,8 +51,6 @@ pub fn random_point_in_unit_sphere() -> Vector3<f32> {
             break temp;
         };
     };
-
-    return vec;
 }
 
 pub fn is_close_to_zero(vector: Vector3<f32>) -> bool {
