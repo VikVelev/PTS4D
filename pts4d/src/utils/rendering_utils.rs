@@ -1,6 +1,6 @@
 use cgmath::Vector3;
 use sdl2::{
-    event::Event, keyboard::Keycode, mouse::MouseButton, pixels::Color, rect::Point, render::Canvas, sys::KeyCode, video::Window
+    event::Event, keyboard::Keycode, pixels::Color, rect::Point, render::Canvas, video::Window
 };
 
 use crate::scene::{

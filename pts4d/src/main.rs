@@ -23,11 +23,10 @@ mod utils {
 mod renderer;
 
 use crate::scene::scene::Scene;
-use crate::scene::screen::{self, HEIGHT, WIDTH};
+use crate::scene::screen::{HEIGHT, WIDTH};
 use crate::utils::rendering_utils::{add_screens, handle_input, initialize_screen, present_screen};
 use crate::utils::scene_builders;
 
-use cgmath::Vector3;
 use renderer::render_pass;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
@@ -41,7 +40,7 @@ pub fn main() -> Result<(), String> {
     let sdl_context = sdl2::init()?;
     let video_subsystem = sdl_context.video()?;
     let window = video_subsystem
-        .window("PTS4D", screen::WIDTH as u32, screen::HEIGHT as u32)
+        .window("PTS4D", WIDTH as u32, HEIGHT as u32)
         .position_centered()
         .opengl()
         .build()
