@@ -1,7 +1,14 @@
 use cgmath::Vector3;
-use sdl2::{pixels::Color, rect::Point, render::Canvas, video::Window};
+use sdl2::{
+    event::Event, keyboard::Keycode, pixels::Color, rect::Point, render::Canvas, sys::KeyCode,
+    video::Window,
+};
 
-use crate::scene::screen::{Screen, HEIGHT, WIDTH};
+use crate::scene::{
+    camera::{Camera, CameraConfig},
+    scene::Scene,
+    screen::{Screen, HEIGHT, WIDTH},
+};
 
 pub fn preprocess_color(color: Vector3<f32>, samples_per_pixel: i32) -> Vector3<f32> {
     let mut r = color.x;
@@ -61,11 +68,14 @@ fn add_rows(row1: &[Vector3<f32>; WIDTH], row2: &[Vector3<f32>; WIDTH]) -> [Vect
 }
 
 pub fn add_screens(screen1: Screen, screen2: Screen) -> Screen {
-    let mut new_screen = vec![[Vector3 {
-        x: 0.0,
-        y: 0.0,
-        z: 0.0,
-    }; WIDTH]; HEIGHT];
+    let mut new_screen = vec![
+        [Vector3 {
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+        }; WIDTH];
+        HEIGHT
+    ];
 
     let mut screen1_iter = screen1.iter();
     let mut screen2_iter = screen2.iter();
@@ -85,4 +95,55 @@ pub fn add_screens(screen1: Screen, screen2: Screen) -> Screen {
     }
 
     return new_screen;
+}
+
+pub fn handle_input(event: Event, scene: &mut Scene) -> bool {
+    match event {
+        Event::KeyDown {
+            keycode: Some(Keycode::W),
+            ..
+        } => {
+            scene.camera.camera_config.look_from.y += 0.5;
+            scene.camera = renew_camera(&scene.camera.camera_config);
+            return true;
+        }
+        Event::KeyDown {
+            keycode: Some(Keycode::S),
+            ..
+        } => {
+            scene.camera.camera_config.look_from.y -= 0.5;
+            scene.camera = renew_camera(&scene.camera.camera_config);
+            return true;
+        }
+        Event::KeyDown {
+            keycode: Some(Keycode::A),
+            ..
+        } => {
+            scene.camera.camera_config.look_from.x -= 0.5;
+            scene.camera = renew_camera(&scene.camera.camera_config);
+            return true;
+        }
+        Event::KeyDown {
+            keycode: Some(Keycode::D),
+            ..
+        } => {
+            scene.camera.camera_config.look_from.x += 0.5;
+            scene.camera = renew_camera(&scene.camera.camera_config);
+            return true;
+        }
+        _ => {
+            return false;
+        }
+    }
+}
+
+pub fn renew_camera(config: &CameraConfig) -> Camera {
+    return Camera::new(
+        config.image_height,
+        config.image_width,
+        config.fov,
+        config.look_from,
+        config.look_at,
+        config.up,
+    )
 }

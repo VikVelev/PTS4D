@@ -128,7 +128,7 @@ impl<M: Reflective> Mesh<M> {
         if v < 0.0 || u + v > 1.0 {
             return None;
         }
-        
+
         // At this stage we can compute t to find out where the intersection point is on the line.
         let t = inv_det * e2.dot(s_cross_e1);
         if t > bounds.1 || t < bounds.0 {
@@ -144,10 +144,9 @@ impl<M: Reflective> Mesh<M> {
                 normal: correct_face_normal(ray, (e1).cross(e2).normalize()),
                 point_at_intersection: t,
             });
-        } else {
-            // This means that there is a line intersection but not a ray intersection.
-            return None;
         }
+
+        return None;
     }
 }
 
@@ -170,8 +169,7 @@ impl<M: Reflective + 'static> Hitable for Mesh<M> {
                                 &obj.vertices,
                                 (bounds.0, closest_so_far),
                             );
-                            if maybe_hit.is_some() {
-                                let hit_point = maybe_hit.unwrap();
+                            if let Some(hit_point) = maybe_hit {
                                 if closest_so_far > hit_point.point_at_intersection {
                                     closest_so_far = hit_point.point_at_intersection;
                                     hit = Some(hit_point);

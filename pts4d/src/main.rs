@@ -24,7 +24,7 @@ mod renderer;
 
 use crate::scene::scene::Scene;
 use crate::scene::screen::{self, HEIGHT, WIDTH};
-use crate::utils::rendering_utils::{add_screens, present_screen};
+use crate::utils::rendering_utils::{add_screens, handle_input, present_screen};
 use crate::utils::scene_builders;
 
 use cgmath::Vector3;
@@ -59,7 +59,9 @@ pub fn main() -> Result<(), String> {
 
     // Initialize PTS4D World
     // let scene: Scene = scene_builders::generate_scene();
-    let scene: Scene = scene_builders::generate_polygon_scene("./objs/chill/triangles.obj");
+
+    // scene is mutable, so the camera can be modified during runtime.
+    let mut scene: Scene = scene_builders::generate_polygon_scene("./objs/chill/cube.obj");
 
     // Keep track of iterations
     let mut i = 0;
@@ -83,7 +85,21 @@ pub fn main() -> Result<(), String> {
                     keycode: Some(Keycode::Escape),
                     ..
                 } => break 'running,
-                _ => {}
+                _ => {
+                    if handle_input(event, &mut scene) {
+                        // If the camera has changed something,
+                        // Delete the frame and start rendering a new one.
+                        all_frames = vec![
+                            [Vector3 {
+                                x: 0.0,
+                                y: 0.0,
+                                z: 0.0,
+                            }; WIDTH];
+                            HEIGHT
+                        ];
+                        i = 0;
+                    };
+                }
             }
         }
         i += 1;

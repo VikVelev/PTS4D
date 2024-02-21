@@ -28,13 +28,13 @@ pub fn ray_trace_rec(scene: &Scene, ray: &Ray, bounces: i32) -> Vector3<f32> {
     }
 
     let mut hit: Option<Hit<Lambertian>> = None;
-    let mut closest_intersection_point: f32 = MAX;
+    let mut closest_t: f32 = MAX;
 
     for obj in &scene.objects {
         let curr_obj = obj;
-        let temp_closest_hit = curr_obj.intersect(ray, (0.001, closest_intersection_point));
+        let temp_closest_hit = curr_obj.intersect(ray, (0.001, closest_t));
         if let Some(closest_hit) = temp_closest_hit {
-            closest_intersection_point = closest_hit.point_at_intersection;
+            closest_t = closest_hit.point_at_intersection;
             hit = Some(closest_hit);
         }
     }
