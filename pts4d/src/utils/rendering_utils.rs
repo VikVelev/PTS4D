@@ -1,7 +1,6 @@
 use cgmath::Vector3;
 use sdl2::{
-    event::Event, keyboard::Keycode, pixels::Color, rect::Point, render::Canvas, sys::KeyCode,
-    video::Window,
+    event::Event, keyboard::Keycode, mouse::MouseButton, pixels::Color, rect::Point, render::Canvas, sys::KeyCode, video::Window
 };
 
 use crate::scene::{
@@ -34,6 +33,17 @@ pub fn preprocess_color(color: Vector3<f32>, samples_per_pixel: i32) -> Vector3<
         y: g * 255.0,
         z: b * 255.0,
     };
+}
+
+pub fn initialize_screen() -> Vec<[Vector3<f32>; WIDTH]> {
+    return vec![
+        [Vector3 {
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+        }; WIDTH];
+        HEIGHT
+    ];
 }
 
 pub fn present_screen(screen: &Screen, sdl_canvas: &mut Canvas<Window>, iteration: i32) {
@@ -128,6 +138,14 @@ pub fn handle_input(event: Event, scene: &mut Scene) -> bool {
             ..
         } => {
             scene.camera.camera_config.look_from.x += 0.5;
+            scene.camera = renew_camera(&scene.camera.camera_config);
+            return true;
+        }
+        Event::MouseWheel {
+            precise_y,
+            ..
+        } => {
+            scene.camera.camera_config.look_from.z -= precise_y * 0.2;
             scene.camera = renew_camera(&scene.camera.camera_config);
             return true;
         }

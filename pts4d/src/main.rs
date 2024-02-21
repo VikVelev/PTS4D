@@ -24,7 +24,7 @@ mod renderer;
 
 use crate::scene::scene::Scene;
 use crate::scene::screen::{self, HEIGHT, WIDTH};
-use crate::utils::rendering_utils::{add_screens, handle_input, present_screen};
+use crate::utils::rendering_utils::{add_screens, handle_input, initialize_screen, present_screen};
 use crate::utils::scene_builders;
 
 use cgmath::Vector3;
@@ -64,18 +64,10 @@ pub fn main() -> Result<(), String> {
     let mut scene: Scene = scene_builders::generate_polygon_scene("./objs/chill/cube.obj");
 
     // Keep track of iterations
-    let mut i = 0;
+    let mut curr_samples_per_pixel = 0;
 
     // Keeps the sum of all colors across all iterations
-    let mut all_frames = vec![
-        [Vector3 {
-            x: 0.0,
-            y: 0.0,
-            z: 0.0,
-        }; WIDTH];
-        HEIGHT
-    ];
-
+    let mut all_frames = initialize_screen();
     'running: loop {
         let start_time = Instant::now();
         for event in event_pump.poll_iter() {
@@ -89,27 +81,20 @@ pub fn main() -> Result<(), String> {
                     if handle_input(event, &mut scene) {
                         // If the camera has changed something,
                         // Delete the frame and start rendering a new one.
-                        all_frames = vec![
-                            [Vector3 {
-                                x: 0.0,
-                                y: 0.0,
-                                z: 0.0,
-                            }; WIDTH];
-                            HEIGHT
-                        ];
-                        i = 0;
+                        all_frames = initialize_screen();
+                        curr_samples_per_pixel = 0; // Set the current samples per pixel to 0;
                     };
                 }
             }
         }
-        i += 1;
+        curr_samples_per_pixel += 1;
         all_frames = add_screens(all_frames, render_pass(&scene));
-        present_screen(&all_frames, &mut canvas, i);
+        present_screen(&all_frames, &mut canvas, curr_samples_per_pixel);
 
         let end_time = Instant::now() - start_time;
         println!(
             "Frame {} in {:?} - {} FPS",
-            i,
+            curr_samples_per_pixel,
             end_time,
             1000.0 / end_time.as_millis() as f32
         );
