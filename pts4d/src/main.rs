@@ -14,6 +14,11 @@ mod scene {
     pub mod screen;
 }
 
+mod accel {
+    pub mod aabb;
+    pub mod bvh;
+}
+
 mod utils {
     pub mod rendering_utils;
     pub mod scene_builders;

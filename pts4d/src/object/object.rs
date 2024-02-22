@@ -1,5 +1,5 @@
 use crate::materials::material::Reflective;
-use crate::utils::vector_utils::{correct_face_normal, Hit, Ray};
+use crate::utils::vector_utils::{correct_face_normal, Hit, Interval, Ray};
 
 use cgmath::{dot, InnerSpace, Vector3};
 use wavefront_obj::obj::{ObjSet, Primitive, VTNIndex, Vertex};
@@ -11,7 +11,7 @@ pub trait Hitable: Sized {
     //
     // Returns an Intersect object, which contains all necessary information to bounce / render.
     // Should return None if there is no intersection
-    fn intersect(&self, ray: &Ray, bounds: (f32, f32)) -> Option<Hit<Self::Material>>
+    fn intersect(&self, ray: &Ray, bounds: Interval) -> Option<Hit<Self::Material>>
     where
         Self: Sized;
 }
@@ -23,7 +23,7 @@ pub struct Sphere<T: Reflective> {
 }
 
 impl<Mat: Reflective> Hitable for Sphere<Mat> {
-    fn intersect(&self, ray: &Ray, bounds: (f32, f32)) -> Option<Hit<Mat>> {
+    fn intersect(&self, ray: &Ray, bounds: Interval) -> Option<Hit<Mat>> {
         // TODO: Check and rewrite math
         // Dirty garbage to get a circle rendering.
 
@@ -35,7 +35,7 @@ impl<Mat: Reflective> Hitable for Sphere<Mat> {
 
         if discriminant > 0.0 {
             let x1 = (-b - discriminant.sqrt()) / (2.0 * a);
-            if x1 < bounds.1 && x1 > bounds.0 {
+            if x1 < bounds.max && x1 > bounds.min {
                 return Some(Hit {
                     point_at_intersection: x1,
                     point: ray.point_at(x1),
@@ -48,7 +48,7 @@ impl<Mat: Reflective> Hitable for Sphere<Mat> {
             }
 
             let x2 = (-b + discriminant.sqrt()) / (2.0 * a);
-            if x2 < bounds.1 && x2 > bounds.0 {
+            if x2 < bounds.max && x2 > bounds.min {
                 return Some(Hit {
                     point_at_intersection: x2,
                     point: ray.point_at(x2),
@@ -86,7 +86,7 @@ impl<M: Reflective> Mesh<M> {
         ray: &Ray,
         triangle: &(VTNIndex, VTNIndex, VTNIndex),
         vertices_cache: &Vec<Vertex>,
-        bounds: (f32, f32),
+        bounds: Interval,
     ) -> Option<Hit<M>> {
         let (p1, p2, p3) = triangle;
 
@@ -131,7 +131,7 @@ impl<M: Reflective> Mesh<M> {
 
         // At this stage we can compute t to find out where the intersection point is on the line.
         let t = inv_det * e2.dot(s_cross_e1);
-        if t > bounds.1 || t < bounds.0 {
+        if t > bounds.max || t < bounds.min {
             return None;
         }
 
@@ -153,9 +153,9 @@ impl<M: Reflective> Mesh<M> {
 impl<M: Reflective + 'static> Hitable for Mesh<M> {
     type Material = M;
 
-    fn intersect(&self, ray: &Ray, bounds: (f32, f32)) -> Option<Hit<Self::Material>> {
+    fn intersect(&self, ray: &Ray, bounds: Interval) -> Option<Hit<Self::Material>> {
         let mut hit: Option<Hit<Self::Material>> = None;
-        let mut closest_so_far: f32 = bounds.1;
+        let mut closest_so_far: f32 = bounds.max;
 
         for obj in &self.geometry.objects {
             for geom in &obj.geometry {
@@ -167,7 +167,7 @@ impl<M: Reflective + 'static> Hitable for Mesh<M> {
                                 ray,
                                 &(a, b, c),
                                 &obj.vertices,
-                                (bounds.0, closest_so_far),
+                                Interval::new(bounds.min, closest_so_far),
                             );
                             if let Some(hit_point) = maybe_hit {
                                 if closest_so_far > hit_point.point_at_intersection {

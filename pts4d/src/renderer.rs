@@ -5,7 +5,7 @@ use crate::scene::screen::Screen;
 use crate::scene::screen::{HEIGHT, WIDTH};
 use crate::utils::rendering_utils::preprocess_color;
 use crate::utils::scene_builders::generate_sky;
-use crate::utils::vector_utils::{Hit, Ray};
+use crate::utils::vector_utils::{Hit, Interval, Ray};
 use cgmath::{ElementWise, Vector3};
 use rayon::prelude::*;
 use std::f32::MAX;
@@ -32,7 +32,7 @@ pub fn ray_trace_rec(scene: &Scene, ray: &Ray, bounces: i32) -> Vector3<f32> {
 
     for obj in &scene.objects {
         let curr_obj = obj;
-        let temp_closest_hit = curr_obj.intersect(ray, (0.001, closest_t));
+        let temp_closest_hit = curr_obj.intersect(ray, Interval::new(0.001, closest_t));
         if let Some(closest_hit) = temp_closest_hit {
             closest_t = closest_hit.point_at_intersection;
             hit = Some(closest_hit);
