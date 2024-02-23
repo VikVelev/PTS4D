@@ -46,7 +46,7 @@ impl AABB {
             0 => &self.x_interval,
             1 => &self.y_interval,
             2 => &self.z_interval,
-            _ => &self.x_interval,
+            _ => panic!("Index {} is not available on a 3D bounding-box", i),
         }
     }
 }

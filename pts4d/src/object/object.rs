@@ -1,19 +1,19 @@
+use crate::accel::aabb::AABB;
 use crate::materials::material::Reflective;
 use crate::utils::vector_utils::{correct_face_normal, Hit, Interval, Ray};
 
 use cgmath::{dot, InnerSpace, Vector3};
 use wavefront_obj::obj::{ObjSet, Primitive, VTNIndex, Vertex};
 
-pub trait Hitable: Sized {
+pub trait Hitable {
     type Material: Reflective;
     // A function checking if the object implementing this trait
     // can be intersected by a specific ray, given some bounds
     //
     // Returns an Intersect object, which contains all necessary information to bounce / render.
     // Should return None if there is no intersection
-    fn intersect(&self, ray: &Ray, bounds: Interval) -> Option<Hit<Self::Material>>
-    where
-        Self: Sized;
+    fn intersect(&self, ray: &Ray, bounds: Interval) -> Option<Hit<Self::Material>>;
+    fn bounding_box() -> AABB;
 }
 
 pub struct Sphere<T: Reflective> {
@@ -65,6 +65,10 @@ impl<Mat: Reflective> Hitable for Sphere<Mat> {
     }
 
     type Material = Mat;
+
+    fn bounding_box() -> AABB {
+        todo!()
+    }
 }
 
 pub struct Mesh<M: Reflective> {
@@ -182,5 +186,9 @@ impl<M: Reflective + 'static> Hitable for Mesh<M> {
             }
         }
         return hit;
+    }
+
+    fn bounding_box() -> AABB {
+        todo!()
     }
 }
