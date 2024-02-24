@@ -23,19 +23,25 @@ pub fn ray_trace_rec(scene: &Scene, ray: &Ray, bounces: i32) -> Vector3<f32> {
         return Vector3::new(0.0, 0.0, 0.0);
     }
 
-    let mut hit: Option<Hit<Lambertian>> = None;
-    let mut closest_t: f32 = MAX;
+    let mut maybe_hit: Option<Hit<Lambertian>> = None;
 
-    for obj in &scene.objects {
-        let curr_obj = obj;
-        let temp_closest_hit = curr_obj.intersect(ray, Interval::new(0.001, closest_t));
-        if let Some(closest_hit) = temp_closest_hit {
-            closest_t = closest_hit.point_at_intersection;
-            hit = Some(closest_hit);
+    for obj in &scene.meshes {
+        let mut closest_t = MAX;
+        if let Some(hit) = maybe_hit {
+            closest_t = hit.point_at_intersection;
         }
+        maybe_hit = cast_ray(obj, ray, closest_t);
     }
 
-    if let Some(hit) = hit {
+    for obj in &scene.spheres {
+        let mut closest_t = MAX;
+        if let Some(hit) = maybe_hit {
+            closest_t = hit.point_at_intersection;
+        }
+        maybe_hit = cast_ray(obj, ray, closest_t);
+    }
+
+    if let Some(hit) = maybe_hit {
         let maybe_bounced_ray = hit.material.scatter(ray, &hit);
 
         if let Some((bounced_ray, attenuation)) = maybe_bounced_ray {
@@ -48,27 +54,35 @@ pub fn ray_trace_rec(scene: &Scene, ray: &Ray, bounces: i32) -> Vector3<f32> {
     return generate_sky(ray);
 }
 
-fn convert_vec_to_arr<T, const N: usize>(v: Vec<T>) -> [T; N] {
-    return v.try_into().unwrap_or_else(|v: Vec<T>| {
-        panic!("Expected a Vec of length {} but it was {}", N, v.len())
-    });
+fn cast_ray<'a>(
+    obj: &'a impl Hitable<Material = Lambertian>,
+    ray: &'a Ray,
+    closest_t: f32,
+) -> Option<Hit<'a, Lambertian>> {
+    // Cast a single ray and get the closest hit.
+    let curr_obj = obj;
+    let mut hit: Option<Hit<Lambertian>> = None;
+
+    let temp_closest_hit = curr_obj.intersect(ray, Interval::new(0.001, closest_t));
+    if let Some(closest_hit) = temp_closest_hit {
+        hit = Some(closest_hit);
+    }
+
+    return hit;
 }
 
 pub fn render_pass(scene: &Scene) -> Screen {
-    let mut new_screen = vec![[Vector3::new(0.0, 0.0, 0.0); WIDTH]; HEIGHT];
+    let mut new_screen = vec![vec![Vector3::new(0.0, 0.0, 0.0); WIDTH]; HEIGHT];
 
     for y in 0..HEIGHT {
         // Create an array of all x coordinates for a specific row
         // Execute a single_pixel_pass on all of them and collect()
         // collect() preserves order so we can write it directly onto the screen
-        let x_row: Vec<Vector3<f32>> = (0..WIDTH)
+        new_screen[y] = (0..WIDTH)
             .collect::<Vec<_>>()
             .par_iter()
-            .map(|x| {
-                return single_pixel_pass(*x, y, scene);
-            })
+            .map(|x| single_pixel_pass(*x, y, scene))
             .collect();
-        new_screen[y] = convert_vec_to_arr::<Vector3<f32>, WIDTH>(x_row);
     }
 
     return new_screen;

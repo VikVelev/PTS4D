@@ -31,8 +31,8 @@ pub fn preprocess_color(color: Vector3<f32>, samples_per_pixel: i32) -> Vector3<
     return Vector3::new(r * 255.0, g * 255.0, b * 255.0);
 }
 
-pub fn initialize_screen() -> Vec<[Vector3<f32>; WIDTH]> {
-    return vec![[Vector3::new(0.0, 0.0, 0.0); WIDTH]; HEIGHT];
+pub fn initialize_screen() -> Vec<Vec<Vector3<f32>>> {
+    return vec![vec![Vector3::new(0.0, 0.0, 0.0); WIDTH]; HEIGHT];
 }
 
 pub fn present_screen(screen: &Screen, sdl_canvas: &mut Canvas<Window>, iteration: i32) {
@@ -52,8 +52,8 @@ pub fn present_screen(screen: &Screen, sdl_canvas: &mut Canvas<Window>, iteratio
     sdl_canvas.present();
 }
 
-fn add_rows(row1: &[Vector3<f32>; WIDTH], row2: &[Vector3<f32>; WIDTH]) -> [Vector3<f32>; WIDTH] {
-    let mut new_row = [Vector3::new(0.0, 0.0, 0.0); WIDTH];
+fn add_rows(row1: &Vec<Vector3<f32>>, row2: &Vec<Vector3<f32>>) -> Vec<Vector3<f32>> {
+    let mut new_row = vec![Vector3::new(0.0, 0.0, 0.0); WIDTH];
 
     for (i, (left, right)) in row1.iter().zip(row2).enumerate() {
         new_row[i] = left + right;
@@ -63,7 +63,7 @@ fn add_rows(row1: &[Vector3<f32>; WIDTH], row2: &[Vector3<f32>; WIDTH]) -> [Vect
 }
 
 pub fn add_screens(screen1: Screen, screen2: Screen) -> Screen {
-    let mut new_screen = vec![[Vector3::new(0.0, 0.0, 0.0); WIDTH]; HEIGHT];
+    let mut new_screen = initialize_screen();
 
     let mut screen1_iter = screen1.iter();
     let mut screen2_iter = screen2.iter();

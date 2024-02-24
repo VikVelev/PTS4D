@@ -34,24 +34,23 @@ pub fn generate_polygon_scene(path: &str) -> Scene {
     let up = Vector3::new(0.0, -1.0, 0.0); // TODO: WTF?
     let camera: Camera = Camera::new(HEIGHT as f32, WIDTH as f32, 40.0, look_from, look_at, up);
 
-    return Scene {
-        objects: [Mesh {
-            geometry: mesh,
-            material: Lambertian {
-                albedo: Vector3::new(1.0, 0.0, 0.0)
-            },
-        }],
-        camera,
-    };
+    let meshes = vec![Mesh {
+        geometry: mesh,
+        material: Lambertian {
+            albedo: Vector3::new(1.0, 0.0, 0.0)
+        },
+    }];
+
+    return Scene::build_mesh_scene(meshes, camera);
 }
 
-pub fn _generate_scene() -> Scene {
+pub fn _generate_sphere_scene() -> Scene {
     let look_from = Vector3::new(0.0, 5.0, 30.0);
     let look_at = Vector3::new(0.0, 5.0, 0.0);
     let up = Vector3::new(0.0, -1.0, 0.0); // TODO: WTF?
-    let _camera: Camera = Camera::new(HEIGHT as f32, WIDTH as f32, 40.0, look_from, look_at, up);
+    let camera: Camera = Camera::new(HEIGHT as f32, WIDTH as f32, 40.0, look_from, look_at, up);
 
-    let _ground_sphere = Sphere::new(
+    let ground_sphere = Sphere::new(
         Vector3::new(0.0, 5.0, 0.0),
         5.0,
         Lambertian {
@@ -59,18 +58,15 @@ pub fn _generate_scene() -> Scene {
         },
     );
 
-    let _main_sphere = Sphere::new(
+    let main_sphere = Sphere::new(
         Vector3::new(0.0, -500.0, 0.0),
         500.0,
         Lambertian {
             albedo: Vector3::new(0.9, 0.9, 1.0),
         },
     );
-    todo!();
-    // return Scene {
-    //     objects: [main_sphere, ground_sphere],
-    //     camera,
-    // };
+    
+    return Scene::build_sphere_scene(vec![main_sphere, ground_sphere], camera);
 }
 
 pub fn generate_sky(ray: &Ray) -> Vector3<f32> {

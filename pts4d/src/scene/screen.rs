@@ -5,4 +5,4 @@ const SCALE: usize = 3;
 pub const WIDTH: usize = 178 * SCALE;
 pub const HEIGHT: usize = 100 * SCALE;
 
-pub type Screen = Vec<[Vector3<f32>; WIDTH]>;
+pub type Screen = Vec<Vec<Vector3<f32>>>;
