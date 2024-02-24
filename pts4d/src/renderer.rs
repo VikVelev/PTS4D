@@ -23,25 +23,24 @@ pub fn ray_trace_rec(scene: &Scene, ray: &Ray, bounces: i32) -> Vector3<f32> {
         return Vector3::new(0.0, 0.0, 0.0);
     }
 
-    let mut maybe_hit: Option<Hit<Lambertian>> = None;
-
-    for obj in &scene.meshes {
-        let mut closest_t = MAX;
-        if let Some(hit) = maybe_hit {
-            closest_t = hit.point_at_intersection;
-        }
-        maybe_hit = cast_ray(obj, ray, closest_t);
-    }
+    let mut final_hit: Option<Hit<Lambertian>> = None;
+    let mut closest_t = MAX;
 
     for obj in &scene.spheres {
-        let mut closest_t = MAX;
-        if let Some(hit) = maybe_hit {
+        if let Some(hit) = cast_ray(obj, ray, closest_t) {
             closest_t = hit.point_at_intersection;
+            final_hit = Some(hit);
         }
-        maybe_hit = cast_ray(obj, ray, closest_t);
     }
 
-    if let Some(hit) = maybe_hit {
+    for obj in &scene.meshes {
+        if let Some(hit) = cast_ray(obj, ray, closest_t) {
+            closest_t = hit.point_at_intersection;
+            final_hit = Some(hit);
+        }
+    }
+
+    if let Some(hit) = final_hit {
         let maybe_bounced_ray = hit.material.scatter(ray, &hit);
 
         if let Some((bounced_ray, attenuation)) = maybe_bounced_ray {

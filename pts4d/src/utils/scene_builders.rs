@@ -41,7 +41,15 @@ pub fn generate_polygon_scene(path: &str) -> Scene {
         },
     }];
 
-    return Scene::build_mesh_scene(meshes, camera);
+    let ground_sphere = Sphere::new(
+        Vector3::new(5.0, 0.0, 0.0),
+        3.0,
+        Lambertian {
+            albedo: Vector3::new(0.0, 1.0, 0.0)
+        },
+    );
+
+    return Scene::build_complex_scene(meshes, vec![ground_sphere], camera);
 }
 
 pub fn _generate_sphere_scene() -> Scene {

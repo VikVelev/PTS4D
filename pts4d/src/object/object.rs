@@ -41,9 +41,6 @@ impl<T: Reflective> Sphere<T> {
 
 impl<Mat: Reflective> Hitable for Sphere<Mat> {
     fn intersect(&self, ray: &Ray, bounds: Interval) -> Option<Hit<Mat>> {
-        // TODO: Check and rewrite math
-        // Dirty garbage to get a circle rendering.
-
         let oc = ray.origin - self.center;
         let a = dot(ray.direction, ray.direction); // || ray.direction ||^2
         let b = 2.0 * dot(oc, ray.direction);
