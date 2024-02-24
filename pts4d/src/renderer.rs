@@ -1,3 +1,4 @@
+use crate::accel::aabb::HitableAccelStructure;
 use crate::materials::material::{Lambertian, Reflective};
 use crate::object::object::Hitable;
 use crate::scene::scene::Scene;
@@ -12,6 +13,8 @@ use std::f32::MAX;
 
 const MAX_DEPTH: i32 = 3;
 const SAMPLES_PER_PIXEL: i32 = 1;
+const MIN_T: f32 = 0.0001;
+const DEBUG_AABB: bool = false;
 
 pub fn ray_trace(scene: &Scene, ray: &Ray) -> Vector3<f32> {
     return ray_trace_rec(scene, ray, 0);
@@ -27,16 +30,34 @@ pub fn ray_trace_rec(scene: &Scene, ray: &Ray, bounces: i32) -> Vector3<f32> {
     let mut closest_t = MAX;
 
     for obj in &scene.spheres {
-        if let Some(hit) = cast_ray(obj, ray, closest_t) {
-            closest_t = hit.point_at_intersection;
-            final_hit = Some(hit);
+        if obj
+            .bounding_box()
+            .intersect(ray, Interval::new(MIN_T, closest_t))
+        {
+            if DEBUG_AABB {
+                return Vector3::new(0.0, 0.0, 0.0);
+            }
+            if let Some(hit) = cast_ray(obj, ray, closest_t) {
+                closest_t = hit.point_at_intersection;
+                final_hit = Some(hit);
+
+            }
         }
     }
 
     for obj in &scene.meshes {
-        if let Some(hit) = cast_ray(obj, ray, closest_t) {
-            closest_t = hit.point_at_intersection;
-            final_hit = Some(hit);
+        if obj
+            .bounding_box()
+            .intersect(ray, Interval::new(MIN_T, closest_t))
+        {
+            if DEBUG_AABB {
+                return Vector3::new(0.0, 0.0, 0.0);
+            }
+            if let Some(hit) = cast_ray(obj, ray, closest_t) {
+                closest_t = hit.point_at_intersection;
+                final_hit = Some(hit);
+
+            }
         }
     }
 
@@ -62,7 +83,7 @@ fn cast_ray<'a>(
     let curr_obj = obj;
     let mut hit: Option<Hit<Lambertian>> = None;
 
-    let temp_closest_hit = curr_obj.intersect(ray, Interval::new(0.001, closest_t));
+    let temp_closest_hit = curr_obj.intersect(ray, Interval::new(MIN_T, closest_t));
     if let Some(closest_hit) = temp_closest_hit {
         hit = Some(closest_hit);
     }

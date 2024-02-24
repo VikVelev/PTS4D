@@ -1,5 +1,5 @@
-use crate::accel::aabb::AABB;
-use crate::materials::material::Reflective;
+use crate::accel::aabb::{self, AABB};
+use crate::materials::material::{self, Reflective};
 use crate::utils::vector_utils::{correct_face_normal, Hit, Interval, Ray};
 
 use cgmath::{dot, InnerSpace, Vector3};
@@ -88,6 +88,7 @@ impl<Mat: Reflective> Hitable for Sphere<Mat> {
 pub struct Mesh<M: Reflective> {
     pub geometry: ObjSet,
     pub material: M,
+    bbox: AABB,
 }
 
 fn convert_to_cgmath_vec(vertex: Vertex) -> Vector3<f32> {
@@ -95,6 +96,32 @@ fn convert_to_cgmath_vec(vertex: Vertex) -> Vector3<f32> {
 }
 
 impl<M: Reflective> Mesh<M> {
+    pub fn new(geometry: ObjSet, material: M) -> Mesh<M> {
+        let mut bbox: AABB =
+            AABB::new_from_diagonals(Vector3::new(0.0, 0.0, 0.0), Vector3::new(0.0, 0.0, 0.0));
+
+        // Building a simple bounding box.
+        for obj in &geometry.objects {
+            for geom in &obj.geometry {
+                for shape in &geom.shapes {
+                    match shape.primitive {
+                        // Each vertex is made out of VertexIndex, Option<TextureIndex>, Option<NormalIndex>
+                        Primitive::Triangle(a, b, c) => {
+                            bbox = AABB::new_from_aabbs(bbox, triangle_bounding_box(&(a, b, c), &obj.vertices));
+                        }
+                        _ => continue,
+                    }
+                }
+            }
+        }
+
+        return Mesh {
+            geometry,
+            material,
+            bbox,
+        };
+    }
+
     fn intersect_triangle(
         &self,
         ray: &Ray,
@@ -199,6 +226,35 @@ impl<M: Reflective + 'static> Hitable for Mesh<M> {
     }
 
     fn bounding_box(&self) -> &AABB {
-        todo!()
+        return &self.bbox;
     }
+}
+
+fn triangle_bounding_box(
+    triangle: &(VTNIndex, VTNIndex, VTNIndex),
+    vertices_cache: &Vec<Vertex>,
+) -> AABB {
+    let (p1, p2, p3) = triangle;
+
+    let (vertex_index_1, _, _) = p1;
+    let (vertex_index_2, _, _) = p2;
+    let (vertex_index_3, _, _) = p3;
+
+    let maybe_v1 = vertices_cache.get(*vertex_index_1);
+    let maybe_v2 = vertices_cache.get(*vertex_index_2);
+    let maybe_v3 = vertices_cache.get(*vertex_index_3);
+
+    if maybe_v1.is_none() || maybe_v2.is_none() || maybe_v3.is_none() {
+        panic!("Some vertices weren't assembled together into a triangle");
+    }
+
+    let a = convert_to_cgmath_vec(*maybe_v1.unwrap());
+    let b = convert_to_cgmath_vec(*maybe_v2.unwrap());
+    let c = convert_to_cgmath_vec(*maybe_v3.unwrap());
+
+    let aabb1 = AABB::new_from_diagonals(a, b);
+    let aabb2 = AABB::new_from_diagonals(a, c);
+    let final_aabb = AABB::new_from_aabbs(aabb1, aabb2);
+
+    return final_aabb;
 }

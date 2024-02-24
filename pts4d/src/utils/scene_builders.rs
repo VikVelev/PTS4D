@@ -34,18 +34,18 @@ pub fn generate_polygon_scene(path: &str) -> Scene {
     let up = Vector3::new(0.0, -1.0, 0.0); // TODO: WTF?
     let camera: Camera = Camera::new(HEIGHT as f32, WIDTH as f32, 40.0, look_from, look_at, up);
 
-    let meshes = vec![Mesh {
-        geometry: mesh,
-        material: Lambertian {
-            albedo: Vector3::new(1.0, 0.0, 0.0)
+    let meshes = vec![Mesh::new(
+        mesh,
+        Lambertian {
+            albedo: Vector3::new(1.0, 0.0, 0.0),
         },
-    }];
+    )];
 
     let ground_sphere = Sphere::new(
         Vector3::new(5.0, 0.0, 0.0),
         3.0,
         Lambertian {
-            albedo: Vector3::new(0.0, 1.0, 0.0)
+            albedo: Vector3::new(0.0, 1.0, 0.0),
         },
     );
 
@@ -62,7 +62,7 @@ pub fn _generate_sphere_scene() -> Scene {
         Vector3::new(0.0, 5.0, 0.0),
         5.0,
         Lambertian {
-            albedo: Vector3::new(1.0, 0.0, 0.0)
+            albedo: Vector3::new(1.0, 0.0, 0.0),
         },
     );
 
@@ -73,7 +73,7 @@ pub fn _generate_sphere_scene() -> Scene {
             albedo: Vector3::new(0.9, 0.9, 1.0),
         },
     );
-    
+
     return Scene::build_sphere_scene(vec![main_sphere, ground_sphere], camera);
 }
 

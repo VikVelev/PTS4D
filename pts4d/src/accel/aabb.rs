@@ -2,7 +2,7 @@ use cgmath::Vector3;
 
 use crate::utils::vector_utils::{Interval, Ray};
 
-trait HitableAccelStructure {
+pub trait HitableAccelStructure {
     fn intersect(&self, ray: &Ray, bounds: Interval) -> bool;
 }
 
@@ -55,7 +55,7 @@ impl HitableAccelStructure for AABB {
     fn intersect(&self, ray: &Ray, bounds: Interval) -> bool {
         let mut temp_bounds = bounds;
 
-        for i in 0..2 {
+        for i in 0..3 {
             let inv_d = 1.0 / ray.direction[i];
             let orig = ray.origin[i];
 
