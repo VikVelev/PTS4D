@@ -36,16 +36,8 @@ pub struct Hit<'a, MaterialType: Reflective> {
 pub fn random_point_in_unit_sphere() -> Vector3<f32> {
     let mut rng = rand::thread_rng();
     return loop {
-        let temp =
-            2.0 * Vector3 {
-                x: rng.gen::<f32>(),
-                y: rng.gen::<f32>(),
-                z: rng.gen::<f32>(),
-            } - Vector3 {
-                x: 1.0,
-                y: 1.0,
-                z: 1.0,
-            };
+        let temp = 2.0 * Vector3::new(rng.gen::<f32>(), rng.gen::<f32>(), rng.gen::<f32>())
+            - Vector3::new(1.0, 1.0, 1.0);
 
         if temp.magnitude2() < 1.0 {
             break temp;

@@ -20,11 +20,7 @@ pub fn ray_trace(scene: &Scene, ray: &Ray) -> Vector3<f32> {
 // Recursively ray-trace until the number of bounces has reached MAX_DEPTH
 pub fn ray_trace_rec(scene: &Scene, ray: &Ray, bounces: i32) -> Vector3<f32> {
     if bounces >= MAX_DEPTH {
-        return Vector3 {
-            x: 0.0,
-            y: 0.0,
-            z: 0.0,
-        };
+        return Vector3::new(0.0, 0.0, 0.0);
     }
 
     let mut hit: Option<Hit<Lambertian>> = None;
@@ -46,11 +42,7 @@ pub fn ray_trace_rec(scene: &Scene, ray: &Ray, bounces: i32) -> Vector3<f32> {
             return attenuation.mul_element_wise(ray_trace_rec(scene, &bounced_ray, bounces + 1));
         }
 
-        return Vector3 {
-            x: 0.0,
-            y: 0.0,
-            z: 0.0,
-        };
+        return Vector3::new(0.0, 0.0, 0.0);
     }
 
     return generate_sky(ray);
@@ -63,14 +55,7 @@ fn convert_vec_to_arr<T, const N: usize>(v: Vec<T>) -> [T; N] {
 }
 
 pub fn render_pass(scene: &Scene) -> Screen {
-    let mut new_screen = vec![
-        [Vector3 {
-            x: 0.0,
-            y: 0.0,
-            z: 0.0,
-        }; WIDTH];
-        HEIGHT
-    ];
+    let mut new_screen = vec![[Vector3::new(0.0, 0.0, 0.0); WIDTH]; HEIGHT];
 
     for y in 0..HEIGHT {
         // Create an array of all x coordinates for a specific row
@@ -90,11 +75,7 @@ pub fn render_pass(scene: &Scene) -> Screen {
 }
 
 fn single_pixel_pass(x: usize, y: usize, scene: &Scene) -> Vector3<f32> {
-    let mut color: Vector3<f32> = Vector3 {
-        x: 0.0,
-        y: 0.0,
-        z: 0.0,
-    };
+    let mut color: Vector3<f32> = Vector3::new(0.0, 0.0, 0.0);
     for _ in 0..SAMPLES_PER_PIXEL {
         let ray = scene.shoot_ray(x as f32 / WIDTH as f32, y as f32 / HEIGHT as f32);
         color += ray_trace(scene, &ray);
