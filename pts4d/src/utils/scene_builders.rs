@@ -79,37 +79,37 @@ pub fn _generate_scene() -> Scene {
     };
     let _camera: Camera = Camera::new(HEIGHT as f32, WIDTH as f32, 40.0, look_from, look_at, up);
 
-    let _ground_sphere = Sphere {
-        center: Vector3 {
+    let _ground_sphere = Sphere::new(
+        Vector3 {
             x: 0.0,
             y: 5.0,
             z: 0.0,
         },
-        radius: 5.0,
-        material: Lambertian {
+        5.0,
+        Lambertian {
             albedo: Vector3 {
                 x: 1.0,
                 y: 0.0,
                 z: 0.0,
             },
         },
-    };
+    );
 
-    let _main_sphere = Sphere {
-        center: Vector3 {
+    let _main_sphere = Sphere::new(
+        Vector3 {
             x: 0.0,
             y: -500.0,
             z: 0.0,
         },
-        radius: 500.0,
-        material: Lambertian {
+        500.0,
+        Lambertian {
             albedo: Vector3 {
                 x: 0.9,
                 y: 0.9,
                 z: 0.1,
             },
         },
-    };
+    );
     todo!();
     // return Scene {
     //     objects: [main_sphere, ground_sphere],

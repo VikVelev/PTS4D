@@ -13,13 +13,30 @@ pub trait Hitable {
     // Returns an Intersect object, which contains all necessary information to bounce / render.
     // Should return None if there is no intersection
     fn intersect(&self, ray: &Ray, bounds: Interval) -> Option<Hit<Self::Material>>;
-    fn bounding_box() -> AABB;
+    fn bounding_box(&self) -> &AABB;
 }
 
 pub struct Sphere<T: Reflective> {
     pub center: Vector3<f32>,
     pub radius: f32,
     pub material: T,
+    bbox: AABB,
+}
+
+impl<T: Reflective> Sphere<T> {
+    fn compute_bounding_box(center: Vector3<f32>, radius: f32) -> AABB {
+        let radius_vec = Vector3::new(radius, radius, radius);
+        return AABB::new_from_diagonals(center - radius_vec, center + radius_vec);
+    }
+
+    pub fn new(center: Vector3<f32>, radius: f32, material: T) -> Sphere<T> {
+        Sphere {
+            center,
+            radius,
+            material,
+            bbox: Sphere::<T>::compute_bounding_box(center, radius),
+        }
+    }
 }
 
 impl<Mat: Reflective> Hitable for Sphere<Mat> {
@@ -66,8 +83,8 @@ impl<Mat: Reflective> Hitable for Sphere<Mat> {
 
     type Material = Mat;
 
-    fn bounding_box() -> AABB {
-        todo!()
+    fn bounding_box(&self) -> &AABB {
+        return &self.bbox;
     }
 }
 
@@ -77,11 +94,7 @@ pub struct Mesh<M: Reflective> {
 }
 
 fn convert_to_cgmath_vec(vertex: Vertex) -> Vector3<f32> {
-    return Vector3 {
-        x: vertex.x as f32,
-        y: vertex.y as f32,
-        z: vertex.z as f32,
-    };
+    return Vector3::new(vertex.x as f32, vertex.y as f32, vertex.z as f32);
 }
 
 impl<M: Reflective> Mesh<M> {
@@ -188,7 +201,7 @@ impl<M: Reflective + 'static> Hitable for Mesh<M> {
         return hit;
     }
 
-    fn bounding_box() -> AABB {
+    fn bounding_box(&self) -> &AABB {
         todo!()
     }
 }
