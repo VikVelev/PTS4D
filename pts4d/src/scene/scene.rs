@@ -1,19 +1,18 @@
-use crate::materials::material::Metallic;
 use crate::object::mesh::Mesh;
 use crate::object::sphere::Sphere;
 use crate::scene::camera::Camera;
 use crate::utils::vector_utils::Ray;
 
 pub struct Scene {
-    pub meshes: Vec<Mesh<Metallic>>,
-    pub spheres: Vec<Sphere<Metallic>>,
+    pub meshes: Vec<Mesh>,
+    pub spheres: Vec<Sphere>,
     pub camera: Camera,
 }
 
 impl Scene {
     pub fn build_complex_scene(
-        meshes: Vec<Mesh<Metallic>>,
-        spheres: Vec<Sphere<Metallic>>,
+        meshes: Vec<Mesh>,
+        spheres: Vec<Sphere>,
         camera: Camera,
     ) -> Scene {
         return Scene {
@@ -23,7 +22,7 @@ impl Scene {
         };
     }
 
-    pub fn _build_mesh_scene(meshes: Vec<Mesh<Metallic>>, camera: Camera) -> Scene {
+    pub fn _build_mesh_scene(meshes: Vec<Mesh>, camera: Camera) -> Scene {
         return Scene {
             meshes,
             spheres: Vec::new(), // Empty
@@ -31,7 +30,7 @@ impl Scene {
         };
     }
 
-    pub fn _build_sphere_scene(spheres: Vec<Sphere<Metallic>>, camera: Camera) -> Scene {
+    pub fn _build_sphere_scene(spheres: Vec<Sphere>, camera: Camera) -> Scene {
         return Scene {
             meshes: Vec::new(), // Empty
             spheres,

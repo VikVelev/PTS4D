@@ -1,5 +1,4 @@
 use crate::accel::aabb::HitableAccelStructure;
-use crate::materials::material::{Metallic, Reflective};
 use crate::object::object::{Hit, Hitable};
 use crate::scene::scene::Scene;
 use crate::scene::screen::Screen;
@@ -26,7 +25,7 @@ pub fn ray_trace_rec(scene: &Scene, ray: &Ray, bounces: i32) -> Vector3<f32> {
         return Vector3::new(0.0, 0.0, 1.0);
     }
 
-    let mut final_hit: Option<Hit<Metallic>> = None;
+    let mut final_hit: Option<Hit> = None;
     let mut closest_t = MAX;
 
     for obj in &scene.spheres {
@@ -72,14 +71,14 @@ pub fn ray_trace_rec(scene: &Scene, ray: &Ray, bounces: i32) -> Vector3<f32> {
     return generate_sky(ray);
 }
 
-fn cast_ray<'a, T: Reflective>(
-    obj: &'a impl Hitable<Material = T>,
+fn cast_ray<'a>(
+    obj: &'a impl Hitable,
     ray: &'a Ray,
     closest_t: f32,
-) -> Option<Hit<'a, T>> {
+) -> Option<Hit<'a>> {
     // Cast a single ray and get the closest hit.
     let curr_obj = obj;
-    let mut hit: Option<Hit<T>> = None;
+    let mut hit: Option<Hit> = None;
 
     let temp_closest_hit = curr_obj.intersect(ray, Interval::new(MIN_T, closest_t));
     if let Some(closest_hit) = temp_closest_hit {

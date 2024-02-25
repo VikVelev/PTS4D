@@ -1,13 +1,15 @@
 use cgmath::{InnerSpace, Vector3};
 use wavefront_obj::obj::{ObjSet, Primitive, VTNIndex, Vertex};
 
-use crate::{accel::aabb::AABB, materials::material::Reflective, utils::vector_utils::{correct_face_normal, Interval, Ray}};
+use crate::{
+    accel::aabb::AABB, materials::material::Material, utils::vector_utils::{correct_face_normal, Interval, Ray}
+};
 
 use super::object::{Hit, Hitable};
 
-pub struct Mesh<M: Reflective> {
+pub struct Mesh {
     pub geometry: ObjSet,
-    pub material: M,
+    pub material: Material,
     bbox: AABB,
 }
 
@@ -16,8 +18,8 @@ fn convert_to_cgmath_vec(vertex: Vertex) -> Vector3<f32> {
     return Vector3::new(vertex.x as f32, vertex.y as f32, vertex.z as f32);
 }
 
-impl<M: Reflective> Mesh<M> {
-    pub fn new(geometry: ObjSet, material: M) -> Mesh<M> {
+impl Mesh {
+    pub fn new(geometry: ObjSet, material: Material) -> Mesh {
         let mut bbox: AABB =
             AABB::new_from_diagonals(Vector3::new(0.0, 0.0, 0.0), Vector3::new(0.0, 0.0, 0.0));
 
@@ -52,7 +54,7 @@ impl<M: Reflective> Mesh<M> {
         triangle: &(VTNIndex, VTNIndex, VTNIndex),
         vertices_cache: &Vec<Vertex>,
         bounds: Interval,
-    ) -> Option<Hit<M>> {
+    ) -> Option<Hit> {
         let (p1, p2, p3) = triangle;
 
         let (vertex_index_1, _, _) = p1;
@@ -115,11 +117,9 @@ impl<M: Reflective> Mesh<M> {
     }
 }
 
-impl<M: Reflective + 'static> Hitable for Mesh<M> {
-    type Material = M;
-
-    fn intersect(&self, ray: &Ray, bounds: Interval) -> Option<Hit<Self::Material>> {
-        let mut hit: Option<Hit<Self::Material>> = None;
+impl Hitable for Mesh {
+    fn intersect(&self, ray: &Ray, bounds: Interval) -> Option<Hit> {
+        let mut hit: Option<Hit> = None;
         let mut closest_so_far: f32 = bounds.max;
 
         for obj in &self.geometry.objects {
