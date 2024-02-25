@@ -1,12 +1,12 @@
 use crate::accel::aabb::HitableAccelStructure;
 use crate::materials::material::{Metallic, Reflective};
-use crate::object::object::Hitable;
+use crate::object::object::{Hit, Hitable};
 use crate::scene::scene::Scene;
 use crate::scene::screen::Screen;
 use crate::scene::screen::{HEIGHT, WIDTH};
 use crate::utils::rendering_utils::preprocess_color;
 use crate::utils::scene_builders::generate_sky;
-use crate::utils::vector_utils::{Hit, Interval, Ray};
+use crate::utils::vector_utils::{Interval, Ray};
 use cgmath::{ElementWise, Vector3};
 use rayon::prelude::*;
 use std::f32::MAX;

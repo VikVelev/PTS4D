@@ -4,7 +4,8 @@ use cgmath::{InnerSpace, Vector3, VectorSpace};
 use wavefront_obj::obj::ObjSet;
 
 use crate::materials::material::{Lambertian, Metallic};
-use crate::object::object::{Mesh, Sphere};
+use crate::object::mesh::Mesh;
+use crate::object::sphere::Sphere;
 use crate::scene::camera::Camera;
 use crate::scene::scene::Scene;
 use crate::scene::screen::{HEIGHT, WIDTH};

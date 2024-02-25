@@ -1,6 +1,6 @@
 use cgmath::{InnerSpace, Vector3};
 
-use crate::utils::vector_utils::{is_close_to_zero, random_point_in_unit_sphere, Hit, Ray};
+use crate::{object::object::Hit, utils::vector_utils::{is_close_to_zero, random_point_in_unit_sphere, Ray}};
 
 pub trait Reflective {
     fn scatter(&self, ray_in: &Ray, hit: &Hit<impl Reflective>) -> Option<(Ray, Vector3<f32>)>;

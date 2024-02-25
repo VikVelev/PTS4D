@@ -1,5 +1,6 @@
 use crate::materials::material::Metallic;
-use crate::object::object::{Mesh, Sphere};
+use crate::object::mesh::Mesh;
+use crate::object::sphere::Sphere;
 use crate::scene::camera::Camera;
 use crate::utils::vector_utils::Ray;
 
