@@ -63,21 +63,24 @@ fn metallic_shading(
 fn dielectric_shading(ray: &Ray, hit: &Hit, refraction_index: f32) -> Option<(Ray, Vector3<f32>)> {
     let mut rng = rand::thread_rng();
 
-    let attenuation = Vector3::new(1.0, 1.0, 1.0);
+    let attenuation = Vector3::new(0.99, 0.99, 0.99);
     let refraction_ratio = if hit.is_facing_you {
         1.0 / refraction_index
     } else {
         refraction_index
     };
-    
+
     let ray_direction_unit = ray.direction.normalize();
-    let cos_theta = -ray_direction_unit.dot(hit.normal).min(1.0);
+    let cos_theta = -(ray_direction_unit.dot(hit.normal).min(1.0));
     let sin_theta = (1.0 - cos_theta * cos_theta).sqrt();
- 
+
     let scattered: Vector3<f32>;
 
     let cant_refract = refraction_ratio * sin_theta > 1.0;
-    if cant_refract || (reflectance_schlick_approx(cos_theta, refraction_index) > rng.gen::<f32>()) {
+    let fresnel_reflection =
+        reflectance_schlick_approx(cos_theta, refraction_index) > rng.gen::<f32>();
+
+    if cant_refract || fresnel_reflection {
         scattered = reflect_vector(ray_direction_unit, hit.normal);
     } else {
         scattered = refract_vector(ray_direction_unit, hit.normal, refraction_ratio)

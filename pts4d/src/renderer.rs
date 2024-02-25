@@ -39,7 +39,6 @@ pub fn ray_trace_rec(scene: &Scene, ray: &Ray, bounces: i32) -> Vector3<f32> {
             if let Some(hit) = cast_ray(obj, ray, closest_t) {
                 closest_t = hit.point_at_intersection;
                 final_hit = Some(hit);
-
             }
         }
     }
@@ -55,7 +54,6 @@ pub fn ray_trace_rec(scene: &Scene, ray: &Ray, bounces: i32) -> Vector3<f32> {
             if let Some(hit) = cast_ray(obj, ray, closest_t) {
                 closest_t = hit.point_at_intersection;
                 final_hit = Some(hit);
-
             }
         }
     }
@@ -71,11 +69,7 @@ pub fn ray_trace_rec(scene: &Scene, ray: &Ray, bounces: i32) -> Vector3<f32> {
     return generate_sky(ray);
 }
 
-fn cast_ray<'a>(
-    obj: &'a impl Hitable,
-    ray: &'a Ray,
-    closest_t: f32,
-) -> Option<Hit<'a>> {
+fn cast_ray<'a>(obj: &'a impl Hitable, ray: &'a Ray, closest_t: f32) -> Option<Hit<'a>> {
     // Cast a single ray and get the closest hit.
     let curr_obj = obj;
     let mut hit: Option<Hit> = None;

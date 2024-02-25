@@ -1,8 +1,10 @@
-use cgmath::{InnerSpace, Vector3};
+use cgmath::{InnerSpace, Matrix3, Point3, Transform, Vector3};
 use wavefront_obj::obj::{ObjSet, Primitive, VTNIndex, Vertex};
 
 use crate::{
-    accel::aabb::AABB, materials::material::Material, utils::vector_utils::{correct_face_normal, Interval, Ray}
+    accel::aabb::AABB,
+    materials::material::Material,
+    utils::vector_utils::{correct_face_normal, Interval, Ray},
 };
 
 use super::object::{Hit, Hitable};
@@ -18,32 +20,47 @@ fn convert_to_cgmath_vec(vertex: Vertex) -> Vector3<f32> {
     return Vector3::new(vertex.x as f32, vertex.y as f32, vertex.z as f32);
 }
 
-fn add_vertex_cgmath_vec(vec1: Vertex, vec2: Vector3<f32>) -> Vertex {
-    let result = convert_to_cgmath_vec(vec1) + vec2;
+fn translate_and_scale_vertex_cgmath_vec(vec1: Vertex, vec2: Vector3<f32>, scale: f32) -> Vertex {
+    let scale_mat: Matrix3<f32> = Matrix3 {
+        x: Vector3::new(scale, 0.0, 0.0),
+        y: Vector3::new(0.0, scale, 0.0),
+        z: Vector3::new(0.0, 0.0, scale),
+    };
+
+    let scaled_object: Vector3<f32> = <Matrix3<f32> as Transform<Point3<f32>>>::transform_vector(
+        &scale_mat,
+        convert_to_cgmath_vec(vec1),
+    );
+    let result = scaled_object + vec2;
+
     return Vertex {
         x: result.x as f64,
         y: result.y as f64,
         z: result.z as f64,
-    }
+    };
 }
 
-fn translate_object(vertex_set: &Vec<Vertex>, to: Vector3<f32>) -> Vec<Vertex> {
+fn translate_and_scale_object(
+    vertex_set: &Vec<Vertex>,
+    to: Vector3<f32>,
+    scale: f32,
+) -> Vec<Vertex> {
     let mut translated_set: Vec<Vertex> = Vec::new();
     for point in vertex_set {
-        translated_set.push(add_vertex_cgmath_vec(*point, to));
+        translated_set.push(translate_and_scale_vertex_cgmath_vec(*point, to, scale));
     }
 
     return translated_set;
 }
 
 impl Mesh {
-    pub fn new(center: Vector3<f32>, mut geometry: ObjSet, material: Material) -> Mesh {
+    pub fn new(center: Vector3<f32>, scale: f32, mut geometry: ObjSet, material: Material) -> Mesh {
         let mut bbox: AABB =
             AABB::new_from_diagonals(Vector3::new(0.0, 0.0, 0.0), Vector3::new(0.0, 0.0, 0.0));
 
         // Building a simple bounding box.
         for obj in geometry.objects.as_mut_slice() {
-            obj.vertices = translate_object(&obj.vertices, center);
+            obj.vertices = translate_and_scale_object(&obj.vertices, center, scale);
             for geom in &obj.geometry {
                 for shape in &geom.shapes {
                     match shape.primitive {

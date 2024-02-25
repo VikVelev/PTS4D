@@ -1,8 +1,8 @@
 extern crate sdl2;
 
 mod object {
-    pub mod object;
     pub mod mesh;
+    pub mod object;
     pub mod sphere;
 }
 

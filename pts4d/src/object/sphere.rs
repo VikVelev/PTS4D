@@ -1,6 +1,10 @@
 use cgmath::{dot, InnerSpace, Vector3};
 
-use crate::{accel::aabb::AABB, materials::material::Material, utils::vector_utils::{correct_face_normal, Interval, Ray}};
+use crate::{
+    accel::aabb::AABB,
+    materials::material::Material,
+    utils::vector_utils::{correct_face_normal, Interval, Ray},
+};
 
 use super::object::{Hit, Hitable};
 

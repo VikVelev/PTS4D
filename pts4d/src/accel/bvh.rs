@@ -1,3 +1,1 @@
-struct BVH {
-    
-}
+struct BVH {}

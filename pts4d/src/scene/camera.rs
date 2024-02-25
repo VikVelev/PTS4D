@@ -50,7 +50,8 @@ impl Camera {
         let pixel_delta_u = (viewport_width * u) / image_width;
         let pixel_delta_v = (viewport_height * -v) / image_height;
 
-        let first_pixel_location = origin - (viewport_width/2.0) * u - (viewport_height/2.0) * v - w;
+        let first_pixel_location =
+            origin - (viewport_width / 2.0) * u - (viewport_height / 2.0) * v - w;
 
         return Camera {
             camera_config: CameraConfig {

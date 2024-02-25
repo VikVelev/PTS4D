@@ -10,11 +10,7 @@ pub struct Scene {
 }
 
 impl Scene {
-    pub fn build_complex_scene(
-        meshes: Vec<Mesh>,
-        spheres: Vec<Sphere>,
-        camera: Camera,
-    ) -> Scene {
+    pub fn build_complex_scene(meshes: Vec<Mesh>, spheres: Vec<Sphere>, camera: Camera) -> Scene {
         return Scene {
             meshes,
             spheres,

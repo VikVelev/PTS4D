@@ -41,7 +41,7 @@ impl Interval {
     }
 
     pub fn _size(&self) -> f32 {
-        return self.max - self.min
+        return self.max - self.min;
     }
 
     pub fn _expand(&self, delta: f32) -> Interval {
