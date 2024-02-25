@@ -1,4 +1,4 @@
-use cgmath::{dot, Vector3};
+use cgmath::{dot, InnerSpace, Vector3};
 
 use crate::{accel::aabb::AABB, materials::material::Material, utils::vector_utils::{correct_face_normal, Interval, Ray}};
 
@@ -38,26 +38,26 @@ impl Hitable for Sphere {
         if discriminant > 0.0 {
             let x1 = (-b - discriminant.sqrt()) / (2.0 * a);
             if x1 < bounds.max && x1 > bounds.min {
+                let ray_t = ray.point_at(x1);
+                let normal = ((ray_t - self.center) / self.radius).normalize();
                 return Some(Hit {
                     point_at_intersection: x1,
-                    point: ray.point_at(x1),
-                    normal: correct_face_normal(
-                        ray,
-                        (ray.point_at(x1) - self.center) / self.radius,
-                    ),
+                    point: ray_t,
+                    normal: correct_face_normal(ray, normal),
+                    is_facing_you: ray.direction.dot(normal) < 0.0,
                     material: &self.material,
                 });
             }
 
             let x2 = (-b + discriminant.sqrt()) / (2.0 * a);
             if x2 < bounds.max && x2 > bounds.min {
+                let ray_t = ray.point_at(x2);
+                let normal = ((ray_t - self.center) / self.radius).normalize();
                 return Some(Hit {
                     point_at_intersection: x2,
-                    point: ray.point_at(x2),
-                    normal: correct_face_normal(
-                        ray,
-                        (ray.point_at(x2) - self.center) / self.radius,
-                    ),
+                    point: ray_t,
+                    normal: correct_face_normal(ray, normal),
+                    is_facing_you: ray.direction.dot(normal) < 0.0,
                     material: &self.material,
                 });
             }

@@ -18,13 +18,32 @@ fn convert_to_cgmath_vec(vertex: Vertex) -> Vector3<f32> {
     return Vector3::new(vertex.x as f32, vertex.y as f32, vertex.z as f32);
 }
 
+fn add_vertex_cgmath_vec(vec1: Vertex, vec2: Vector3<f32>) -> Vertex {
+    let result = convert_to_cgmath_vec(vec1) + vec2;
+    return Vertex {
+        x: result.x as f64,
+        y: result.y as f64,
+        z: result.z as f64,
+    }
+}
+
+fn translate_object(vertex_set: &Vec<Vertex>, to: Vector3<f32>) -> Vec<Vertex> {
+    let mut translated_set: Vec<Vertex> = Vec::new();
+    for point in vertex_set {
+        translated_set.push(add_vertex_cgmath_vec(*point, to));
+    }
+
+    return translated_set;
+}
+
 impl Mesh {
-    pub fn new(geometry: ObjSet, material: Material) -> Mesh {
+    pub fn new(center: Vector3<f32>, mut geometry: ObjSet, material: Material) -> Mesh {
         let mut bbox: AABB =
             AABB::new_from_diagonals(Vector3::new(0.0, 0.0, 0.0), Vector3::new(0.0, 0.0, 0.0));
 
         // Building a simple bounding box.
-        for obj in &geometry.objects {
+        for obj in geometry.objects.as_mut_slice() {
+            obj.vertices = translate_object(&obj.vertices, center);
             for geom in &obj.geometry {
                 for shape in &geom.shapes {
                     match shape.primitive {
@@ -103,12 +122,13 @@ impl Mesh {
         }
 
         if t > f32::EPSILON {
-            let intersection_point = ray.origin + ray.direction * t;
-
+            let intersection_point = ray.point_at(t);
+            let normal = (e1).cross(e2).normalize();
             return Some(Hit {
                 point: intersection_point,
                 material: &self.material,
-                normal: correct_face_normal(ray, (e1).cross(e2).normalize()),
+                normal: correct_face_normal(ray, normal),
+                is_facing_you: ray.direction.dot(normal) < 0.0,
                 point_at_intersection: t,
             });
         }

@@ -33,20 +33,39 @@ pub fn generate_polygon_scene(path: &str) -> Scene {
     let look_from = Vector3::new(5.0, 2.0, 5.0);
     let look_at = Vector3::new(0.0, 0.0, 0.0);
     let up = Vector3::new(0.0, -1.0, 0.0); // TODO: WTF?
-    let camera: Camera = Camera::new(HEIGHT as f32, WIDTH as f32, 40.0, look_from, look_at, up);
+    let camera: Camera = Camera::new(HEIGHT as f32, WIDTH as f32, 60.0, look_from, look_at, up);
 
     let loaded_mesh = Mesh::new(
+        Vector3::new(0.0, 1.0, 0.0),
+        mesh.clone(),
+        Material::Dielectric(0.8),
+    );
+
+    let copy_mesh = Mesh::new(
+        Vector3::new(5.0, 4.3, 0.0),
         mesh,
-        Material::Metallic(Vector3::new(0.55, 0.55, 0.55), 0.0),
+        Material::Metallic(Vector3::new(0.9, 0.55, 0.55), 0.5),
+    );
+
+    let sphere1 = Sphere::new(
+        Vector3::new(5.0, 1.0, 0.0),
+        2.0,
+        Material::Dielectric(2.0),
+    );
+
+    let sphere2 = Sphere::new(
+        Vector3::new(5.0, 1.0, 0.0),
+        1.8,
+        Material::Dielectric(2.0),
     );
 
     let ground_sphere = Sphere::new(
-        Vector3::new(5.0, 0.0, 0.0),
-        1.0,
-        Material::Lambertian(Vector3::new(0.7, 0.1, 0.1)),
+        Vector3::new(0.0, -501.0, 0.0),
+        500.0,
+        Material::Lambertian(Vector3::new(0.8, 0.6, 0.7))
     );
 
-    return Scene::build_complex_scene(vec![loaded_mesh], vec![ground_sphere], camera);
+    return Scene::build_complex_scene(vec![loaded_mesh, copy_mesh], vec![ground_sphere, sphere1, sphere2], camera);
 }
 
 pub fn _generate_sphere_scene() -> Scene {

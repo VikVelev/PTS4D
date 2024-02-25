@@ -28,6 +28,8 @@ pub struct Hit<'a> {
     // since by just a single point you have no idea.
     pub normal: Vector3<f32>,
 
+    pub is_facing_you: bool,
+
     // Material, expressing what has been hit
     pub material: &'a Material,
 }

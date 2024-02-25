@@ -13,6 +13,7 @@ impl Ray {
     }
 }
 
+#[inline]
 pub fn random_point_in_unit_sphere() -> Vector3<f32> {
     let mut rng = rand::thread_rng();
     return loop {
@@ -52,6 +53,7 @@ impl Interval {
     }
 }
 
+#[inline]
 pub fn is_close_to_zero(vector: Vector3<f32>) -> bool {
     let limit = 0.000001;
     if vector.x.abs() < limit && vector.y.abs() < limit && vector.y.abs() < limit {
