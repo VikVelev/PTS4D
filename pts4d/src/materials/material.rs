@@ -6,15 +6,24 @@ pub trait Reflective {
     fn scatter(&self, ray_in: &Ray, hit: &Hit<impl Reflective>) -> Option<(Ray, Vector3<f32>)>;
 }
 
-#[derive(Copy, Clone)]
 pub struct Metallic {
     pub albedo: Vector3<f32>,
     pub fuzz: f32,
 }
 
 impl Reflective for Metallic {
-    fn scatter(&self, _ray_in: &Ray, _hit: &Hit<impl Reflective>) -> Option<(Ray, Vector3<f32>)> {
-        todo!()
+    fn scatter(&self, ray_in: &Ray, hit: &Hit<impl Reflective>) -> Option<(Ray, Vector3<f32>)> {
+        let reflected = reflect_vector(ray_in.direction.normalize(), hit.normal);
+        let scattered = Ray {
+            origin: hit.point,
+            direction: (reflected + self.fuzz * random_point_in_unit_sphere()).normalize()
+        };
+
+        if scattered.direction.dot(hit.normal) > 0.0 {
+            return Some((scattered, self.albedo));
+        }
+
+        return None;
     }
 }
 
@@ -38,4 +47,9 @@ impl Reflective for Lambertian {
             self.albedo,
         ));
     }
+}
+
+#[inline]
+fn reflect_vector(vec: Vector3<f32>, normal: Vector3<f32>) -> Vector3<f32> {
+    return vec - 2.0 * vec.dot(normal) * normal;
 }

@@ -25,7 +25,7 @@ impl AABB {
         };
     }
 
-    pub fn new_from_intervals(x_i1: Interval, y_i2: Interval, z_i3: Interval) -> AABB {
+    pub fn _new_from_intervals(x_i1: Interval, y_i2: Interval, z_i3: Interval) -> AABB {
         return AABB {
             x_interval: x_i1,
             y_interval: y_i2,

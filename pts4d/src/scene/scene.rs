@@ -1,20 +1,18 @@
-use crate::materials::material::Lambertian;
-use crate::object::object::{Hitable, Mesh, Sphere};
+use crate::materials::material::Metallic;
+use crate::object::object::{Mesh, Sphere};
 use crate::scene::camera::Camera;
 use crate::utils::vector_utils::Ray;
 
-const NUM_OF_OBJECTS: usize = 1;
-
 pub struct Scene {
-    pub meshes: Vec<Mesh<Lambertian>>,
-    pub spheres: Vec<Sphere<Lambertian>>,
+    pub meshes: Vec<Mesh<Metallic>>,
+    pub spheres: Vec<Sphere<Metallic>>,
     pub camera: Camera,
 }
 
 impl Scene {
     pub fn build_complex_scene(
-        meshes: Vec<Mesh<Lambertian>>,
-        spheres: Vec<Sphere<Lambertian>>,
+        meshes: Vec<Mesh<Metallic>>,
+        spheres: Vec<Sphere<Metallic>>,
         camera: Camera,
     ) -> Scene {
         return Scene {
@@ -24,7 +22,7 @@ impl Scene {
         };
     }
 
-    pub fn build_mesh_scene(meshes: Vec<Mesh<Lambertian>>, camera: Camera) -> Scene {
+    pub fn _build_mesh_scene(meshes: Vec<Mesh<Metallic>>, camera: Camera) -> Scene {
         return Scene {
             meshes,
             spheres: Vec::new(), // Empty
@@ -32,7 +30,7 @@ impl Scene {
         };
     }
 
-    pub fn build_sphere_scene(spheres: Vec<Sphere<Lambertian>>, camera: Camera) -> Scene {
+    pub fn _build_sphere_scene(spheres: Vec<Sphere<Metallic>>, camera: Camera) -> Scene {
         return Scene {
             meshes: Vec::new(), // Empty
             spheres,

@@ -1,5 +1,5 @@
-use crate::accel::aabb::{self, AABB};
-use crate::materials::material::{self, Reflective};
+use crate::accel::aabb::AABB;
+use crate::materials::material::Reflective;
 use crate::utils::vector_utils::{correct_face_normal, Hit, Interval, Ray};
 
 use cgmath::{dot, InnerSpace, Vector3};
@@ -91,6 +91,7 @@ pub struct Mesh<M: Reflective> {
     bbox: AABB,
 }
 
+#[inline]
 fn convert_to_cgmath_vec(vertex: Vertex) -> Vector3<f32> {
     return Vector3::new(vertex.x as f32, vertex.y as f32, vertex.z as f32);
 }
@@ -107,7 +108,10 @@ impl<M: Reflective> Mesh<M> {
                     match shape.primitive {
                         // Each vertex is made out of VertexIndex, Option<TextureIndex>, Option<NormalIndex>
                         Primitive::Triangle(a, b, c) => {
-                            bbox = AABB::new_from_aabbs(bbox, triangle_bounding_box(&(a, b, c), &obj.vertices));
+                            bbox = AABB::new_from_aabbs(
+                                bbox,
+                                triangle_bounding_box(&(a, b, c), &obj.vertices),
+                            );
                         }
                         _ => continue,
                     }

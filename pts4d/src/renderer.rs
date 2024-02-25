@@ -1,5 +1,5 @@
 use crate::accel::aabb::HitableAccelStructure;
-use crate::materials::material::{Lambertian, Reflective};
+use crate::materials::material::{Metallic, Reflective};
 use crate::object::object::Hitable;
 use crate::scene::scene::Scene;
 use crate::scene::screen::Screen;
@@ -11,7 +11,7 @@ use cgmath::{ElementWise, Vector3};
 use rayon::prelude::*;
 use std::f32::MAX;
 
-const MAX_DEPTH: i32 = 3;
+const MAX_DEPTH: i32 = 10;
 const SAMPLES_PER_PIXEL: i32 = 1;
 const MIN_T: f32 = 0.0001;
 const DEBUG_AABB: bool = false;
@@ -23,10 +23,10 @@ pub fn ray_trace(scene: &Scene, ray: &Ray) -> Vector3<f32> {
 // Recursively ray-trace until the number of bounces has reached MAX_DEPTH
 pub fn ray_trace_rec(scene: &Scene, ray: &Ray, bounces: i32) -> Vector3<f32> {
     if bounces >= MAX_DEPTH {
-        return Vector3::new(0.0, 0.0, 0.0);
+        return Vector3::new(0.0, 0.0, 1.0);
     }
 
-    let mut final_hit: Option<Hit<Lambertian>> = None;
+    let mut final_hit: Option<Hit<Metallic>> = None;
     let mut closest_t = MAX;
 
     for obj in &scene.spheres {
@@ -62,10 +62,8 @@ pub fn ray_trace_rec(scene: &Scene, ray: &Ray, bounces: i32) -> Vector3<f32> {
     }
 
     if let Some(hit) = final_hit {
-        let maybe_bounced_ray = hit.material.scatter(ray, &hit);
-
-        if let Some((bounced_ray, attenuation)) = maybe_bounced_ray {
-            return attenuation.mul_element_wise(ray_trace_rec(scene, &bounced_ray, bounces + 1));
+        if let Some((scattered, attenuation)) = hit.material.scatter(ray, &hit) {
+            return attenuation.mul_element_wise(ray_trace_rec(scene, &scattered, bounces + 1));
         }
 
         return Vector3::new(0.0, 0.0, 0.0);
@@ -74,14 +72,14 @@ pub fn ray_trace_rec(scene: &Scene, ray: &Ray, bounces: i32) -> Vector3<f32> {
     return generate_sky(ray);
 }
 
-fn cast_ray<'a>(
-    obj: &'a impl Hitable<Material = Lambertian>,
+fn cast_ray<'a, T: Reflective>(
+    obj: &'a impl Hitable<Material = T>,
     ray: &'a Ray,
     closest_t: f32,
-) -> Option<Hit<'a, Lambertian>> {
+) -> Option<Hit<'a, T>> {
     // Cast a single ray and get the closest hit.
     let curr_obj = obj;
-    let mut hit: Option<Hit<Lambertian>> = None;
+    let mut hit: Option<Hit<T>> = None;
 
     let temp_closest_hit = curr_obj.intersect(ray, Interval::new(MIN_T, closest_t));
     if let Some(closest_hit) = temp_closest_hit {

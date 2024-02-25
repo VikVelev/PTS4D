@@ -3,7 +3,7 @@ use std::fs;
 use cgmath::{InnerSpace, Vector3, VectorSpace};
 use wavefront_obj::obj::ObjSet;
 
-use crate::materials::material::Lambertian;
+use crate::materials::material::{Lambertian, Metallic};
 use crate::object::object::{Mesh, Sphere};
 use crate::scene::camera::Camera;
 use crate::scene::scene::Scene;
@@ -34,31 +34,33 @@ pub fn generate_polygon_scene(path: &str) -> Scene {
     let up = Vector3::new(0.0, -1.0, 0.0); // TODO: WTF?
     let camera: Camera = Camera::new(HEIGHT as f32, WIDTH as f32, 40.0, look_from, look_at, up);
 
-    let meshes = vec![Mesh::new(
+    let loaded_mesh = Mesh::new(
         mesh,
-        Lambertian {
-            albedo: Vector3::new(1.0, 0.0, 0.0),
+        Metallic {
+            albedo: Vector3::new(0.55, 0.55, 0.55),
+            fuzz: 0.0,
         },
-    )];
+    );
 
     let ground_sphere = Sphere::new(
         Vector3::new(5.0, 0.0, 0.0),
         3.0,
-        Lambertian {
-            albedo: Vector3::new(0.0, 1.0, 0.0),
+        Metallic {
+            albedo: Vector3::new(0.1, 0.7, 0.1),
+            fuzz: 0.3,
         },
     );
 
-    return Scene::build_complex_scene(meshes, vec![ground_sphere], camera);
+    return Scene::build_complex_scene(vec![loaded_mesh], vec![ground_sphere], camera);
 }
 
 pub fn _generate_sphere_scene() -> Scene {
     let look_from = Vector3::new(0.0, 5.0, 30.0);
     let look_at = Vector3::new(0.0, 5.0, 0.0);
     let up = Vector3::new(0.0, -1.0, 0.0); // TODO: WTF?
-    let camera: Camera = Camera::new(HEIGHT as f32, WIDTH as f32, 40.0, look_from, look_at, up);
+    let _camera: Camera = Camera::new(HEIGHT as f32, WIDTH as f32, 40.0, look_from, look_at, up);
 
-    let ground_sphere = Sphere::new(
+    let _ground_sphere = Sphere::new(
         Vector3::new(0.0, 5.0, 0.0),
         5.0,
         Lambertian {
@@ -66,7 +68,7 @@ pub fn _generate_sphere_scene() -> Scene {
         },
     );
 
-    let main_sphere = Sphere::new(
+    let _main_sphere = Sphere::new(
         Vector3::new(0.0, -500.0, 0.0),
         500.0,
         Lambertian {
@@ -74,7 +76,8 @@ pub fn _generate_sphere_scene() -> Scene {
         },
     );
 
-    return Scene::build_sphere_scene(vec![main_sphere, ground_sphere], camera);
+    todo!();
+    // return Scene::_build_sphere_scene(vec![main_sphere, ground_sphere], camera);
 }
 
 pub fn generate_sky(ray: &Ray) -> Vector3<f32> {
