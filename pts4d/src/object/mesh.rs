@@ -54,7 +54,21 @@ fn translate_and_scale_object(
 }
 
 impl Mesh {
-    pub fn new(center: Vector3<f32>, scale: f32, mut geometry: ObjSet, material: Material) -> Mesh {
+    pub fn new(center: Vector3<f32>, scale: f32, geometry: ObjSet) -> Mesh {
+        return Mesh::new_override_material(
+            center,
+            scale,
+            geometry,
+            Material::Lambertian(Vector3::new(0.6, 0.6, 0.6)),
+        );
+    }
+
+    pub fn new_override_material(
+        center: Vector3<f32>,
+        scale: f32,
+        mut geometry: ObjSet,
+        material: Material,
+    ) -> Mesh {
         let mut bbox: AABB =
             AABB::new_from_diagonals(Vector3::new(0.0, 0.0, 0.0), Vector3::new(0.0, 0.0, 0.0));
 
@@ -88,6 +102,7 @@ impl Mesh {
         &self,
         ray: &Ray,
         triangle: &(VTNIndex, VTNIndex, VTNIndex),
+        material: &Option<String>,
         vertices_cache: &Vec<Vertex>,
         bounds: Interval,
     ) -> Option<Hit> {
@@ -168,6 +183,7 @@ impl Hitable for Mesh {
                             let maybe_hit = self.intersect_triangle(
                                 ray,
                                 &(a, b, c),
+                                &geom.material_name,
                                 &obj.vertices,
                                 Interval::new(bounds.min, closest_so_far),
                             );

@@ -1,5 +1,6 @@
 use cgmath::{InnerSpace, Vector3};
 use rand::Rng;
+use wavefront_obj::mtl::Material as WavefrontObjMaterial;
 
 use crate::{
     object::object::Hit,
@@ -11,6 +12,7 @@ pub enum Material {
     Lambertian(Vector3<f32>),    // albedo
     Metallic(Vector3<f32>, f32), // albedo, fuzz
     Dielectric(f32),             // refraction index
+    WavefrontObjMaterial(WavefrontObjMaterial),
 }
 
 impl Material {
@@ -21,6 +23,7 @@ impl Material {
             Material::Dielectric(refraction_index) => {
                 dielectric_shading(ray_in, hit, *refraction_index)
             }
+            Material::WavefrontObjMaterial(_) => todo!(),
         }
     }
 }

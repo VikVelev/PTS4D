@@ -67,7 +67,8 @@ pub fn main() -> Result<(), String> {
     // let scene: Scene = scene_builders::generate_scene();
 
     // scene is mutable, so the camera can be modified during runtime.
-    let mut scene: Scene = scene_builders::generate_polygon_scene("./objs/chill/cube.obj");
+    // let mut scene: Scene = scene_builders::generate_polygon_scene("./objs/benchmark/cornell-box.obj");
+    let mut scene: Scene = scene_builders::generate_cornell_box_scene();
 
     // Keep track of iterations
     let mut curr_samples_per_pixel = 0;

@@ -1,6 +1,7 @@
 use std::fs;
 
 use cgmath::{InnerSpace, Vector3, VectorSpace};
+use wavefront_obj::mtl::MtlSet;
 use wavefront_obj::obj::ObjSet;
 
 use crate::materials::material::Material;
@@ -13,7 +14,7 @@ use crate::scene::screen::{HEIGHT, WIDTH};
 use super::vector_utils::Ray;
 
 // Loads an obj file into memory and parses it into an ObjSet
-pub fn load_and_parse_obj(path: &str) -> ObjSet {
+pub fn load_and_parse_obj(path: &str) -> (ObjSet, MtlSet) {
     let obj_string = fs::read_to_string(path);
     if obj_string.is_err() {
         panic!("There was an error opening and reading '{}'", path);
@@ -24,29 +25,29 @@ pub fn load_and_parse_obj(path: &str) -> ObjSet {
         panic!("There was an error parsing '{}'", path);
     }
 
-    return loaded_obj.unwrap();
+    let mtl_string = fs::read_to_string(path.replace(".obj", ".mtl"));
+    if mtl_string.is_err() {
+        panic!("There was an error opening and reading '{}'", path);
+    }
+
+    let loaded_mtl = wavefront_obj::mtl::parse(mtl_string.unwrap());
+
+    return (loaded_obj.unwrap(), loaded_mtl.unwrap());
 }
 
 // Creates a scene including complex polygon models.
 pub fn generate_polygon_scene(path: &str) -> Scene {
-    let mesh = load_and_parse_obj(path);
+    let (mesh, mesh_materials) = load_and_parse_obj(path);
     let look_from = Vector3::new(5.0, 2.0, 5.0);
-    let look_at = Vector3::new(0.0, 0.0, 0.0);
+    let look_at = Vector3::new(0.0, 3.0, 0.0);
     let up = Vector3::new(0.0, -1.0, 0.0); // TODO: WTF?
     let camera: Camera = Camera::new(HEIGHT as f32, WIDTH as f32, 60.0, look_from, look_at, up);
 
-    let loaded_mesh = Mesh::new(
+    let loaded_mesh = Mesh::new_override_material(
         Vector3::new(0.0, 1.0, 0.0),
         1.0,
         mesh.clone(),
-        Material::Dielectric(0.8),
-    );
-
-    let copy_mesh = Mesh::new(
-        Vector3::new(5.0, 4.3, 0.0),
-        2.0,
-        mesh,
-        Material::Metallic(Vector3::new(0.9, 0.55, 0.55), 0.5),
+        Material::Lambertian(Vector3::new(0.8, 0.6, 0.7)),
     );
 
     let sphere1 = Sphere::new(Vector3::new(5.0, 1.0, 0.0), 2.0, Material::Dielectric(2.0));
@@ -60,10 +61,23 @@ pub fn generate_polygon_scene(path: &str) -> Scene {
     );
 
     return Scene::build_complex_scene(
-        vec![loaded_mesh, copy_mesh],
+        vec![loaded_mesh],
         vec![ground_sphere, sphere1, sphere2],
         camera,
     );
+}
+
+pub fn generate_cornell_box_scene() -> Scene {
+    let look_from = Vector3::new(-0.2, 3.5, 4.2);
+    let look_at = Vector3::new(-0.2, 3.5, 0.5);
+    let up = Vector3::new(0.0, -1.0, 0.0); // TODO: WTF?
+    let camera: Camera = Camera::new(HEIGHT as f32, WIDTH as f32, 60.0, look_from, look_at, up);
+
+    let (mesh, mesh_materials) = load_and_parse_obj("./objs/benchmark/cornell-box.obj");
+
+    let loaded_mesh = Mesh::new(Vector3::new(0.0, 1.0, 0.0), 1.0, mesh.clone());
+
+    return Scene::build_complex_scene(vec![loaded_mesh], vec![], camera);
 }
 
 pub fn _generate_sphere_scene() -> Scene {
