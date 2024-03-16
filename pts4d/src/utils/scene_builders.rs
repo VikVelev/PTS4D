@@ -105,6 +105,11 @@ pub fn _generate_sphere_scene() -> Scene {
 pub fn generate_sky(ray: &Ray) -> Vector3<f32> {
     let t = (0.5) * (ray.direction.normalize().y + 1.0);
     let white = Vector3::new(1.0, 1.0, 1.0);
+    Vector3 {
+        x: 1.0,
+        y: 1.0, 
+        z: 1.0,
+    };
     let blueish = Vector3::new(0.25, 0.75, 1.0);
     // Lerp gradient from white to blue-ish
     return white.lerp(blueish, t);

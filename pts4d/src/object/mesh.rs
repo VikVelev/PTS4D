@@ -71,7 +71,7 @@ impl Mesh {
     ) -> Mesh {
         let mut bbox: AABB =
             AABB::new_from_diagonals(Vector3::new(0.0, 0.0, 0.0), Vector3::new(0.0, 0.0, 0.0));
-
+        
         // Building a simple bounding box.
         for obj in geometry.objects.as_mut_slice() {
             obj.vertices = translate_and_scale_object(&obj.vertices, center, scale);

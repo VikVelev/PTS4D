@@ -75,6 +75,7 @@ pub fn main() -> Result<(), String> {
 
     // Keeps the sum of all colors across all iterations
     let mut all_frames = initialize_screen();
+
     'running: loop {
         let start_time = Instant::now();
         for event in event_pump.poll_iter() {

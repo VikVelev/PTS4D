@@ -34,7 +34,7 @@ pub fn ray_trace_rec(scene: &Scene, ray: &Ray, bounces: i32) -> Vector3<f32> {
             .intersect(ray, Interval::new(MIN_T, closest_t))
         {
             if DEBUG_AABB {
-                return Vector3::new(0.0, 0.0, 0.0);
+                return Vector3::new(1.0, 0.0, 0.0);
             }
             if let Some(hit) = cast_ray(obj, ray, closest_t) {
                 closest_t = hit.point_at_intersection;
@@ -49,7 +49,7 @@ pub fn ray_trace_rec(scene: &Scene, ray: &Ray, bounces: i32) -> Vector3<f32> {
             .intersect(ray, Interval::new(MIN_T, closest_t))
         {
             if DEBUG_AABB {
-                return Vector3::new(0.0, 0.0, 0.0);
+                return Vector3::new(0.0, 1.0, 0.0);
             }
             if let Some(hit) = cast_ray(obj, ray, closest_t) {
                 closest_t = hit.point_at_intersection;
