@@ -1,9 +1,11 @@
+use std::collections::HashMap;
+
 use cgmath::{InnerSpace, Matrix3, Point3, Transform, Vector3};
 use wavefront_obj::obj::{ObjSet, Primitive, VTNIndex, Vertex};
 
 use crate::{
     accel::aabb::AABB,
-    materials::material::Material,
+    materials::material::{Material, MaterialSet},
     utils::vector_utils::{correct_face_normal, Interval, Ray},
 };
 
@@ -11,7 +13,7 @@ use super::object::{Hit, Hitable};
 
 pub struct Mesh {
     pub geometry: ObjSet,
-    pub material: Material,
+    pub material_set: MaterialSet,
     bbox: AABB,
 }
 
@@ -59,19 +61,33 @@ impl Mesh {
             center,
             scale,
             geometry,
-            Material::Lambertian(Vector3::new(0.6, 0.6, 0.6)),
+            Material::Diffuse(Vector3::new(0.6, 0.6, 0.6)),
         );
     }
 
     pub fn new_override_material(
         center: Vector3<f32>,
         scale: f32,
-        mut geometry: ObjSet,
+        geometry: ObjSet,
         material: Material,
+    ) -> Mesh {
+        return Mesh::new_override_material_set(
+            center,
+            scale,
+            geometry,
+            MaterialSet::new_with_default_material(material),
+        );
+    }
+
+    pub fn new_override_material_set(
+        center: Vector3<f32>,
+        scale: f32,
+        mut geometry: ObjSet,
+        material_set: MaterialSet,
     ) -> Mesh {
         let mut bbox: AABB =
             AABB::new_from_diagonals(Vector3::new(0.0, 0.0, 0.0), Vector3::new(0.0, 0.0, 0.0));
-        
+
         // Building a simple bounding box.
         for obj in geometry.objects.as_mut_slice() {
             obj.vertices = translate_and_scale_object(&obj.vertices, center, scale);
@@ -93,7 +109,7 @@ impl Mesh {
 
         return Mesh {
             geometry,
-            material,
+            material_set,
             bbox,
         };
     }
@@ -102,7 +118,7 @@ impl Mesh {
         &self,
         ray: &Ray,
         triangle: &(VTNIndex, VTNIndex, VTNIndex),
-        material: &Option<String>,
+        material_name: &String,
         vertices_cache: &Vec<Vertex>,
         bounds: Interval,
     ) -> Option<Hit> {
@@ -158,7 +174,7 @@ impl Mesh {
             let normal = (e1).cross(e2).normalize();
             return Some(Hit {
                 point: intersection_point,
-                material: &self.material,
+                material: self.material_set.get(material_name),
                 normal: correct_face_normal(ray, normal),
                 is_facing_you: ray.direction.dot(normal) < 0.0,
                 point_at_intersection: t,
@@ -176,6 +192,7 @@ impl Hitable for Mesh {
 
         for obj in &self.geometry.objects {
             for geom in &obj.geometry {
+                let material_name = geom.material_name.as_ref().unwrap();
                 for shape in &geom.shapes {
                     match shape.primitive {
                         // Each vertex is made out of VertexIndex, Option<TextureIndex>, Option<NormalIndex>
@@ -183,7 +200,7 @@ impl Hitable for Mesh {
                             let maybe_hit = self.intersect_triangle(
                                 ray,
                                 &(a, b, c),
-                                &geom.material_name,
+                                material_name,
                                 &obj.vertices,
                                 Interval::new(bounds.min, closest_so_far),
                             );

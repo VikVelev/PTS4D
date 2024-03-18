@@ -1,6 +1,8 @@
+use std::collections::HashMap;
+
 use cgmath::{InnerSpace, Vector3};
 use rand::Rng;
-use wavefront_obj::mtl::Material as WavefrontObjMaterial;
+use wavefront_obj::mtl::{Color, Material as WavefrontObjMaterial};
 
 use crate::{
     object::object::Hit,
@@ -9,21 +11,78 @@ use crate::{
 
 #[derive(Debug)]
 pub enum Material {
-    Lambertian(Vector3<f32>),    // albedo
+    Diffuse(Vector3<f32>),       // albedo
     Metallic(Vector3<f32>, f32), // albedo, fuzz
     Dielectric(f32),             // refraction index
-    WavefrontObjMaterial(WavefrontObjMaterial),
+    Emissive(Vector3<f32>, f32), // albedo, intensity
+    Texture(),                   // TODO Implement
+    WavefrontObjMaterial(WavefrontObjMaterial), // everything
+}
+
+/**
+ * MaterialSet is a set of materials shared within the whole geometry.
+ * Allows for a single object to have multiple materials.
+ */
+pub struct MaterialSet {
+    // A Map Material Name -> Material
+    pub materials: HashMap<String, Material>,
+}
+
+impl MaterialSet {
+    pub fn new_with_default_material(mat: Material) -> MaterialSet {
+        let mut material_set = MaterialSet::new();
+        material_set.add("__default__".to_string(), mat);
+        return material_set;
+    }
+
+    pub fn new() -> MaterialSet {
+        let new_hash_map: HashMap<String, Material> = HashMap::new();
+        return MaterialSet {
+            materials: new_hash_map,
+        };
+    }
+
+    pub fn add(&mut self, key: String, value: Material) {
+        self.materials.insert(key, value);
+    }
+
+    pub fn get(&self, key: &String) -> &Material {
+        return self.materials.get(key).unwrap();
+    }
 }
 
 impl Material {
     pub fn scatter(&self, ray_in: &Ray, hit: &Hit) -> Option<(Ray, Vector3<f32>)> {
         match self {
-            Material::Lambertian(albedo) => lambertian_shading(ray_in, hit, *albedo),
+            Material::Emissive(_, _) => None,
+            Material::Diffuse(albedo) => lambertian_shading(ray_in, hit, *albedo),
             Material::Metallic(albedo, fuzz) => metallic_shading(ray_in, hit, *albedo, *fuzz),
             Material::Dielectric(refraction_index) => {
                 dielectric_shading(ray_in, hit, *refraction_index)
             }
-            Material::WavefrontObjMaterial(_) => todo!(),
+            Material::WavefrontObjMaterial(wavefront_mat) => {
+                // TODO: Implement complex wavefront materials / phong / specular / emissive properties.
+                return lambertian_shading(
+                    ray_in,
+                    hit,
+                    wavefront_color_to_vector(wavefront_mat.color_diffuse),
+                );
+            }
+            Material::Texture() => todo!(),
+        }
+    }
+
+    pub fn emit(&self, ray_in: &Ray) -> Vector3<f32> {
+        match self {
+            Material::Emissive(color, intensity) => *intensity * *color,
+            Material::WavefrontObjMaterial(wavefront_mat) => {
+                if wavefront_mat.name != "Light" {
+                    return Vector3::new(0.0, 0.0, 0.0)
+                }
+
+                return wavefront_color_to_vector(wavefront_mat.color_ambient) * 50.0;
+            }
+            _ => Vector3::new(0.0, 0.0, 0.0),
         }
     }
 }
@@ -118,4 +177,9 @@ fn refract_vector(vec: Vector3<f32>, normal: Vector3<f32>, refraction_ratio: f32
     let r_out_parallel = -f32::abs(1.0 - r_out_perp.magnitude2()).sqrt() * normal;
 
     return r_out_perp + r_out_parallel;
+}
+
+#[inline]
+fn wavefront_color_to_vector(color: Color) -> Vector3<f32> {
+    return Vector3::new(color.r as f32, color.g as f32, color.b as f32);
 }

@@ -3,18 +3,18 @@ use sdl2::{
     event::Event, keyboard::Keycode, pixels::Color, rect::Point, render::Canvas, video::Window,
 };
 
-use crate::scene::{
+use crate::{renderer::SAMPLES_PER_PIXEL, scene::{
     camera::{Camera, CameraConfig},
     scene::Scene,
     screen::{Screen, HEIGHT, WIDTH},
-};
+}};
 
-pub fn preprocess_color(color: Vector3<f32>, samples_per_pixel: i32) -> Vector3<f32> {
+pub fn preprocess_color(color: Vector3<f32>) -> Vector3<f32> {
     let mut r = color.x;
     let mut g = color.y;
     let mut b = color.z;
 
-    let scalar = 1.0 / (samples_per_pixel as f32);
+    let scalar = 1.0 / (SAMPLES_PER_PIXEL as f32);
     r *= scalar;
     g *= scalar;
     b *= scalar;
@@ -24,9 +24,9 @@ pub fn preprocess_color(color: Vector3<f32>, samples_per_pixel: i32) -> Vector3<
     b = b.sqrt();
     g = g.sqrt();
 
-    r = r.clamp(0.0, 0.999);
-    g = g.clamp(0.0, 0.999);
-    b = b.clamp(0.0, 0.999);
+    r = r.clamp(0.0, 1.0);
+    g = g.clamp(0.0, 1.0);
+    b = b.clamp(0.0, 1.0);
 
     return Vector3::new(r * 255.0, g * 255.0, b * 255.0);
 }
@@ -38,6 +38,7 @@ pub fn initialize_screen() -> Vec<Vec<Vector3<f32>>> {
 pub fn present_screen(screen: &Screen, sdl_canvas: &mut Canvas<Window>, iteration: i32) {
     for (y, row) in screen.iter().enumerate() {
         for (x, pixel) in row.iter().enumerate() {
+            // let preprocessed_pixel = preprocess_color(*pixel, SAMPLES_PER_PIXEL);
             sdl_canvas.set_draw_color(Color {
                 r: (pixel.x / iteration as f32) as u8,
                 g: (pixel.y / iteration as f32) as u8,
@@ -91,7 +92,7 @@ pub fn handle_input(event: Event, scene: &mut Scene) -> bool {
             keycode: Some(Keycode::W),
             ..
         } => {
-            scene.camera.camera_config.look_from.y += 0.5;
+            scene.camera.camera_config.look_from.z -= 0.5;
             scene.camera = renew_camera(&scene.camera.camera_config);
             return true;
         }
@@ -99,7 +100,7 @@ pub fn handle_input(event: Event, scene: &mut Scene) -> bool {
             keycode: Some(Keycode::S),
             ..
         } => {
-            scene.camera.camera_config.look_from.y -= 0.5;
+            scene.camera.camera_config.look_from.z += 0.5;
             scene.camera = renew_camera(&scene.camera.camera_config);
             return true;
         }
@@ -107,7 +108,7 @@ pub fn handle_input(event: Event, scene: &mut Scene) -> bool {
             keycode: Some(Keycode::A),
             ..
         } => {
-            scene.camera.camera_config.look_from.x -= 0.5;
+            scene.camera.camera_config.look_from.x += 0.5;
             scene.camera = renew_camera(&scene.camera.camera_config);
             return true;
         }
@@ -115,12 +116,12 @@ pub fn handle_input(event: Event, scene: &mut Scene) -> bool {
             keycode: Some(Keycode::D),
             ..
         } => {
-            scene.camera.camera_config.look_from.x += 0.5;
+            scene.camera.camera_config.look_from.x -= 0.5;
             scene.camera = renew_camera(&scene.camera.camera_config);
             return true;
         }
         Event::MouseWheel { precise_y, .. } => {
-            scene.camera.camera_config.look_from.z -= precise_y * 0.2;
+            scene.camera.camera_config.look_from.y += precise_y * 0.2;
             scene.camera = renew_camera(&scene.camera.camera_config);
             return true;
         }

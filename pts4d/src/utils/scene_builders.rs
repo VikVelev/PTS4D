@@ -4,7 +4,7 @@ use cgmath::{InnerSpace, Vector3, VectorSpace};
 use wavefront_obj::mtl::MtlSet;
 use wavefront_obj::obj::ObjSet;
 
-use crate::materials::material::Material;
+use crate::materials::material::{Material, MaterialSet};
 use crate::object::mesh::Mesh;
 use crate::object::sphere::Sphere;
 use crate::scene::camera::Camera;
@@ -14,7 +14,7 @@ use crate::scene::screen::{HEIGHT, WIDTH};
 use super::vector_utils::Ray;
 
 // Loads an obj file into memory and parses it into an ObjSet
-pub fn load_and_parse_obj(path: &str) -> (ObjSet, MtlSet) {
+pub fn load_and_parse_obj(path: &str) -> (ObjSet, MaterialSet) {
     let obj_string = fs::read_to_string(path);
     if obj_string.is_err() {
         panic!("There was an error opening and reading '{}'", path);
@@ -27,12 +27,20 @@ pub fn load_and_parse_obj(path: &str) -> (ObjSet, MtlSet) {
 
     let mtl_string = fs::read_to_string(path.replace(".obj", ".mtl"));
     if mtl_string.is_err() {
-        panic!("There was an error opening and reading '{}'", path);
+        panic!(
+            "There was an error opening and reading '{}'",
+            path.replace(".obj", ".mtl")
+        );
     }
 
     let loaded_mtl = wavefront_obj::mtl::parse(mtl_string.unwrap());
+    let mut material_set = MaterialSet::new();
 
-    return (loaded_obj.unwrap(), loaded_mtl.unwrap());
+    for mat in loaded_mtl.unwrap().materials {
+        material_set.add(mat.name.to_string(), Material::WavefrontObjMaterial(mat));
+    }
+
+    return (loaded_obj.unwrap(), material_set);
 }
 
 // Creates a scene including complex polygon models.
@@ -47,7 +55,7 @@ pub fn generate_polygon_scene(path: &str) -> Scene {
         Vector3::new(0.0, 1.0, 0.0),
         1.0,
         mesh.clone(),
-        Material::Lambertian(Vector3::new(0.8, 0.6, 0.7)),
+        Material::Diffuse(Vector3::new(0.8, 0.6, 0.7)),
     );
 
     let sphere1 = Sphere::new(Vector3::new(5.0, 1.0, 0.0), 2.0, Material::Dielectric(2.0));
@@ -57,7 +65,7 @@ pub fn generate_polygon_scene(path: &str) -> Scene {
     let ground_sphere = Sphere::new(
         Vector3::new(0.0, -501.0, 0.0),
         500.0,
-        Material::Lambertian(Vector3::new(0.8, 0.6, 0.7)),
+        Material::Diffuse(Vector3::new(0.8, 0.6, 0.7)),
     );
 
     return Scene::build_complex_scene(
@@ -75,7 +83,17 @@ pub fn generate_cornell_box_scene() -> Scene {
 
     let (mesh, mesh_materials) = load_and_parse_obj("./objs/benchmark/cornell-box.obj");
 
-    let loaded_mesh = Mesh::new(Vector3::new(0.0, 1.0, 0.0), 1.0, mesh.clone());
+    let loaded_mesh = Mesh::new_override_material_set(
+        Vector3::new(0.0, 1.0, 0.0),
+        1.0,
+        mesh.clone(),
+        mesh_materials,
+    );
+    let light_sphere = Sphere::new(
+        Vector3::new(-0.2, 5.3, -3.5),
+        1.0,
+        Material::Emissive(Vector3::new(1.0, 1.0, 1.0), 1000.0),
+    );
 
     return Scene::build_complex_scene(vec![loaded_mesh], vec![], camera);
 }
@@ -89,13 +107,13 @@ pub fn _generate_sphere_scene() -> Scene {
     let _ground_sphere = Sphere::new(
         Vector3::new(0.0, 5.0, 0.0),
         5.0,
-        Material::Lambertian(Vector3::new(0.999, 0.0, 0.0)),
+        Material::Diffuse(Vector3::new(0.999, 0.0, 0.0)),
     );
 
     let _main_sphere = Sphere::new(
         Vector3::new(0.0, -500.0, 0.0),
         500.0,
-        Material::Lambertian(Vector3::new(0.9, 0.9, 0.1)),
+        Material::Diffuse(Vector3::new(0.9, 0.9, 0.1)),
     );
 
     todo!();
@@ -107,7 +125,7 @@ pub fn generate_sky(ray: &Ray) -> Vector3<f32> {
     let white = Vector3::new(1.0, 1.0, 1.0);
     Vector3 {
         x: 1.0,
-        y: 1.0, 
+        y: 1.0,
         z: 1.0,
     };
     let blueish = Vector3::new(0.25, 0.75, 1.0);

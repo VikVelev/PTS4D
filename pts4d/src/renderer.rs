@@ -11,7 +11,7 @@ use rayon::prelude::*;
 use std::f32::MAX;
 
 const MAX_DEPTH: i32 = 10;
-const SAMPLES_PER_PIXEL: i32 = 1;
+pub const SAMPLES_PER_PIXEL: i32 = 20;
 const MIN_T: f32 = 0.0001;
 const DEBUG_AABB: bool = false;
 
@@ -22,7 +22,7 @@ pub fn ray_trace(scene: &Scene, ray: &Ray) -> Vector3<f32> {
 // Recursively ray-trace until the number of bounces has reached MAX_DEPTH
 pub fn ray_trace_rec(scene: &Scene, ray: &Ray, bounces: i32) -> Vector3<f32> {
     if bounces >= MAX_DEPTH {
-        return Vector3::new(0.0, 0.0, 1.0);
+        return Vector3::new(0.0, 0.0, 0.0);
     }
 
     let mut final_hit: Option<Hit> = None;
@@ -59,14 +59,19 @@ pub fn ray_trace_rec(scene: &Scene, ray: &Ray, bounces: i32) -> Vector3<f32> {
     }
 
     if let Some(hit) = final_hit {
+        let emitted_color = hit.material.emit(ray);
+
         if let Some((scattered, attenuation)) = hit.material.scatter(ray, &hit) {
-            return attenuation.mul_element_wise(ray_trace_rec(scene, &scattered, bounces + 1));
+            let scattered_color =
+                attenuation.mul_element_wise(ray_trace_rec(scene, &scattered, bounces + 1));
+            return emitted_color + scattered_color;
         }
 
-        return Vector3::new(0.0, 0.0, 0.0);
+        return emitted_color;
     }
 
-    return generate_sky(ray);
+    // return generate_sky(ray);
+    return Vector3::new(0.0, 0.0, 0.0);
 }
 
 fn cast_ray<'a>(obj: &'a impl Hitable, ray: &'a Ray, closest_t: f32) -> Option<Hit<'a>> {
@@ -106,5 +111,5 @@ fn single_pixel_pass(x: usize, y: usize, scene: &Scene) -> Vector3<f32> {
         color += ray_trace(scene, &ray);
     }
 
-    return preprocess_color(color, SAMPLES_PER_PIXEL);
+    return preprocess_color(color);
 }
