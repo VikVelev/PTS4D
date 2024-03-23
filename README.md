@@ -5,6 +5,6 @@ Goal of this project is to build a medium-performance path tracer with global il
 
 ## Example render :)
 
-10k SPP, Ray depth - 10
+20k SPP, Ray depth - 10
 
-![10k SPP](example-render.png)
+![20k SPP](example-render.png)
