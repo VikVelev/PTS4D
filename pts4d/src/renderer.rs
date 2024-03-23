@@ -3,15 +3,13 @@ use crate::object::object::{Hit, Hitable};
 use crate::scene::scene::Scene;
 use crate::scene::screen::Screen;
 use crate::scene::screen::{HEIGHT, WIDTH};
-use crate::utils::rendering_utils::preprocess_color;
-use crate::utils::scene_builders::generate_sky;
 use crate::utils::vector_utils::{Interval, Ray};
 use cgmath::{ElementWise, Vector3};
 use rayon::prelude::*;
 use std::f32::MAX;
 
 const MAX_DEPTH: i32 = 10;
-pub const SAMPLES_PER_PIXEL: i32 = 20;
+pub const SAMPLES_PER_PIXEL: i32 = 2;
 const MIN_T: f32 = 0.0001;
 const DEBUG_AABB: bool = false;
 
@@ -70,7 +68,6 @@ pub fn ray_trace_rec(scene: &Scene, ray: &Ray, bounces: i32) -> Vector3<f32> {
         return emitted_color;
     }
 
-    // return generate_sky(ray);
     return Vector3::new(0.0, 0.0, 0.0);
 }
 
@@ -111,5 +108,5 @@ fn single_pixel_pass(x: usize, y: usize, scene: &Scene) -> Vector3<f32> {
         color += ray_trace(scene, &ray);
     }
 
-    return preprocess_color(color);
+    return color / SAMPLES_PER_PIXEL as f32;
 }

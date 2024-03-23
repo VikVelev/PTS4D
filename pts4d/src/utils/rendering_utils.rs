@@ -14,11 +14,6 @@ pub fn preprocess_color(color: Vector3<f32>) -> Vector3<f32> {
     let mut g = color.y;
     let mut b = color.z;
 
-    let scalar = 1.0 / (SAMPLES_PER_PIXEL as f32);
-    r *= scalar;
-    g *= scalar;
-    b *= scalar;
-
     // Gamma transform;
     r = r.sqrt();
     b = b.sqrt();
@@ -38,13 +33,14 @@ pub fn initialize_screen() -> Vec<Vec<Vector3<f32>>> {
 pub fn present_screen(screen: &Screen, sdl_canvas: &mut Canvas<Window>, iteration: i32) {
     for (y, row) in screen.iter().enumerate() {
         for (x, pixel) in row.iter().enumerate() {
-            // let preprocessed_pixel = preprocess_color(*pixel, SAMPLES_PER_PIXEL);
-            sdl_canvas.set_draw_color(Color {
-                r: (pixel.x / iteration as f32) as u8,
-                g: (pixel.y / iteration as f32) as u8,
-                b: (pixel.z / iteration as f32) as u8,
+            let preprocessed_pixel = preprocess_color(*pixel / iteration as f32);
+            let color = Color {
+                r: (preprocessed_pixel.x) as u8,
+                g: (preprocessed_pixel.y) as u8,
+                b: (preprocessed_pixel.z) as u8,
                 a: 0,
-            });
+            };
+            sdl_canvas.set_draw_color(color);
             sdl_canvas
                 .draw_point(Point::new(x as i32, y as i32))
                 .unwrap();

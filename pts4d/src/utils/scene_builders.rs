@@ -89,13 +89,32 @@ pub fn generate_cornell_box_scene() -> Scene {
         mesh.clone(),
         mesh_materials,
     );
-    let light_sphere = Sphere::new(
-        Vector3::new(-0.2, 5.3, -3.5),
-        1.0,
-        Material::Emissive(Vector3::new(1.0, 1.0, 1.0), 1000.0),
+
+    let green_light_sphere = Sphere::new(
+        Vector3::new(-1.8, 5.5, -3.5),
+        0.35,
+        Material::Emissive(Vector3::new(0.2, 1.0, 0.2), 15.0),
     );
 
-    return Scene::build_complex_scene(vec![loaded_mesh], vec![], camera);
+    let red_light_sphere = Sphere::new(
+        Vector3::new(1.3, 5.5, -3.5),
+        0.35,
+        Material::Emissive(Vector3::new(1.0, 0.2, 0.2), 15.0),
+    );
+
+    let dielectric_sphere = Sphere::new(
+        Vector3::new(-1.5, 2.2, -1.5),
+        1.0,
+        Material::Dielectric(1.4),
+    );
+
+    let metal_sphere = Sphere::new(
+        Vector3::new(1.0, 3.7, -3.0),
+        1.0,
+        Material::Metallic(Vector3::new(1.0, 1.0, 1.0), 0.0),
+    );
+
+    return Scene::build_complex_scene(vec![loaded_mesh], vec![metal_sphere, dielectric_sphere, green_light_sphere, red_light_sphere], camera);
 }
 
 pub fn _generate_sphere_scene() -> Scene {

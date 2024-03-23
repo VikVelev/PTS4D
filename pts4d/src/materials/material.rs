@@ -80,7 +80,7 @@ impl Material {
                     return Vector3::new(0.0, 0.0, 0.0)
                 }
 
-                return wavefront_color_to_vector(wavefront_mat.color_ambient) * 50.0;
+                return wavefront_color_to_vector(wavefront_mat.color_ambient) * 20.0;
             }
             _ => Vector3::new(0.0, 0.0, 0.0),
         }

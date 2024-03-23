@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use cgmath::{InnerSpace, Matrix3, Point3, Transform, Vector3};
 use wavefront_obj::obj::{ObjSet, Primitive, VTNIndex, Vertex};
 

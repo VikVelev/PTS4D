@@ -38,7 +38,6 @@ use renderer::render_pass;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::pixels::Color;
-use std::{thread, time};
 use std::time::Instant;
 
 pub fn main() -> Result<(), String> {
@@ -100,7 +99,6 @@ pub fn main() -> Result<(), String> {
         all_frames = add_screens(all_frames, render_pass(&scene));
         present_screen(&all_frames, &mut canvas, curr_samples_per_pixel);
         
-        // thread::sleep(time::Duration::from_millis(1000));
         let end_time = Instant::now() - start_time;
         println!(
             "Frame {} in {:?} - {} FPS",
