@@ -8,8 +8,8 @@ use cgmath::{ElementWise, Vector3};
 use rayon::prelude::*;
 use std::f32::MAX;
 
-const MAX_DEPTH: i32 = 10;
-pub const SAMPLES_PER_PIXEL: i32 = 2;
+const MAX_DEPTH: i32 = 8;
+pub const SAMPLES_PER_PIXEL: i32 = 1;
 const MIN_T: f32 = 0.0001;
 const DEBUG_AABB: bool = false;
 

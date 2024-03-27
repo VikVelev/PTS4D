@@ -53,6 +53,7 @@ fn translate_and_scale_object(
     return translated_set;
 }
 
+#[allow(dead_code)]
 impl Mesh {
     pub fn new(center: Vector3<f32>, scale: f32, geometry: ObjSet) -> Mesh {
         return Mesh::new_override_material(

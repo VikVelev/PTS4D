@@ -3,13 +3,13 @@ use std::collections::HashMap;
 use cgmath::{InnerSpace, Vector3};
 use rand::Rng;
 use wavefront_obj::mtl::{Color, Material as WavefrontObjMaterial};
-
 use crate::{
     object::object::Hit,
     utils::vector_utils::{is_close_to_zero, random_point_in_unit_sphere, Ray},
 };
 
 #[derive(Debug)]
+#[allow(dead_code)]
 pub enum Material {
     Diffuse(Vector3<f32>),       // albedo
     Metallic(Vector3<f32>, f32), // albedo, fuzz

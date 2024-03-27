@@ -1,7 +1,6 @@
 use std::fs;
 
-use cgmath::{InnerSpace, Vector3, VectorSpace};
-use wavefront_obj::mtl::MtlSet;
+use cgmath::Vector3;
 use wavefront_obj::obj::ObjSet;
 
 use crate::materials::material::{Material, MaterialSet};
@@ -10,8 +9,6 @@ use crate::object::sphere::Sphere;
 use crate::scene::camera::Camera;
 use crate::scene::scene::Scene;
 use crate::scene::screen::{HEIGHT, WIDTH};
-
-use super::vector_utils::Ray;
 
 // Loads an obj file into memory and parses it into an ObjSet
 pub fn load_and_parse_obj(path: &str) -> (ObjSet, MaterialSet) {
@@ -43,9 +40,10 @@ pub fn load_and_parse_obj(path: &str) -> (ObjSet, MaterialSet) {
     return (loaded_obj.unwrap(), material_set);
 }
 
+#[allow(dead_code)]
 // Creates a scene including complex polygon models.
 pub fn generate_polygon_scene(path: &str) -> Scene {
-    let (mesh, mesh_materials) = load_and_parse_obj(path);
+    let (mesh, _mesh_materials) = load_and_parse_obj(path);
     let look_from = Vector3::new(5.0, 2.0, 5.0);
     let look_at = Vector3::new(0.0, 3.0, 0.0);
     let up = Vector3::new(0.0, -1.0, 0.0); // TODO: WTF?
@@ -114,7 +112,16 @@ pub fn generate_cornell_box_scene() -> Scene {
         Material::Metallic(Vector3::new(1.0, 1.0, 1.0), 0.0),
     );
 
-    return Scene::build_complex_scene(vec![loaded_mesh], vec![metal_sphere, dielectric_sphere, green_light_sphere, red_light_sphere], camera);
+    return Scene::build_complex_scene(
+        vec![loaded_mesh],
+        vec![
+            metal_sphere,
+            dielectric_sphere,
+            green_light_sphere,
+            red_light_sphere,
+        ],
+        camera,
+    );
 }
 
 pub fn _generate_sphere_scene() -> Scene {
@@ -137,17 +144,4 @@ pub fn _generate_sphere_scene() -> Scene {
 
     todo!();
     // return Scene::_build_sphere_scene(vec![main_sphere, ground_sphere], camera);
-}
-
-pub fn generate_sky(ray: &Ray) -> Vector3<f32> {
-    let t = (0.5) * (ray.direction.normalize().y + 1.0);
-    let white = Vector3::new(1.0, 1.0, 1.0);
-    Vector3 {
-        x: 1.0,
-        y: 1.0,
-        z: 1.0,
-    };
-    let blueish = Vector3::new(0.25, 0.75, 1.0);
-    // Lerp gradient from white to blue-ish
-    return white.lerp(blueish, t);
 }

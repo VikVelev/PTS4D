@@ -3,11 +3,11 @@ use sdl2::{
     event::Event, keyboard::Keycode, pixels::Color, rect::Point, render::Canvas, video::Window,
 };
 
-use crate::{renderer::SAMPLES_PER_PIXEL, scene::{
+use crate::scene::{
     camera::{Camera, CameraConfig},
     scene::Scene,
     screen::{Screen, HEIGHT, WIDTH},
-}};
+};
 
 pub fn preprocess_color(color: Vector3<f32>) -> Vector3<f32> {
     let mut r = color.x;
@@ -89,6 +89,7 @@ pub fn handle_input(event: Event, scene: &mut Scene) -> bool {
             ..
         } => {
             scene.camera.camera_config.look_from.z -= 0.5;
+            scene.camera.camera_config.look_at.z -= 0.5;
             scene.camera = renew_camera(&scene.camera.camera_config);
             return true;
         }
@@ -97,6 +98,7 @@ pub fn handle_input(event: Event, scene: &mut Scene) -> bool {
             ..
         } => {
             scene.camera.camera_config.look_from.z += 0.5;
+            scene.camera.camera_config.look_at.z += 0.5;
             scene.camera = renew_camera(&scene.camera.camera_config);
             return true;
         }
@@ -105,6 +107,8 @@ pub fn handle_input(event: Event, scene: &mut Scene) -> bool {
             ..
         } => {
             scene.camera.camera_config.look_from.x += 0.5;
+            scene.camera.camera_config.look_at.x += 0.5;
+
             scene.camera = renew_camera(&scene.camera.camera_config);
             return true;
         }
@@ -113,11 +117,14 @@ pub fn handle_input(event: Event, scene: &mut Scene) -> bool {
             ..
         } => {
             scene.camera.camera_config.look_from.x -= 0.5;
+            scene.camera.camera_config.look_at.x -= 0.5;
             scene.camera = renew_camera(&scene.camera.camera_config);
             return true;
         }
         Event::MouseWheel { precise_y, .. } => {
             scene.camera.camera_config.look_from.y += precise_y * 0.2;
+            scene.camera.camera_config.look_at.y += precise_y * 0.2;
+
             scene.camera = renew_camera(&scene.camera.camera_config);
             return true;
         }
