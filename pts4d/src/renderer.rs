@@ -9,8 +9,8 @@ use rayon::prelude::*;
 use std::f32::MAX;
 
 const MAX_DEPTH: i32 = 8;
-pub const SAMPLES_PER_PIXEL: i32 = 1;
-const MIN_T: f32 = 0.0001;
+pub const SAMPLES_PER_PIXEL: i32 = 35;
+const MIN_T: f32 = 0.001;
 const DEBUG_AABB: bool = false;
 
 pub fn ray_trace(scene: &Scene, ray: &Ray) -> Vector3<f32> {
@@ -20,10 +20,11 @@ pub fn ray_trace(scene: &Scene, ray: &Ray) -> Vector3<f32> {
 // Recursively ray-trace until the number of bounces has reached MAX_DEPTH
 pub fn ray_trace_rec(scene: &Scene, ray: &Ray, bounces: i32) -> Vector3<f32> {
     if bounces >= MAX_DEPTH {
+        // Stare into the void!
         return Vector3::new(0.0, 0.0, 0.0);
     }
 
-    let mut final_hit: Option<Hit> = None;
+    let mut closest_hit: Option<Hit> = None;
     let mut closest_t = MAX;
 
     for obj in &scene.spheres {
@@ -36,7 +37,7 @@ pub fn ray_trace_rec(scene: &Scene, ray: &Ray, bounces: i32) -> Vector3<f32> {
             }
             if let Some(hit) = cast_ray(obj, ray, closest_t) {
                 closest_t = hit.point_at_intersection;
-                final_hit = Some(hit);
+                closest_hit = Some(hit);
             }
         }
     }
@@ -51,12 +52,12 @@ pub fn ray_trace_rec(scene: &Scene, ray: &Ray, bounces: i32) -> Vector3<f32> {
             }
             if let Some(hit) = cast_ray(obj, ray, closest_t) {
                 closest_t = hit.point_at_intersection;
-                final_hit = Some(hit);
+                closest_hit = Some(hit);
             }
         }
     }
 
-    if let Some(hit) = final_hit {
+    if let Some(hit) = closest_hit {
         let emitted_color = hit.material.emit(ray);
 
         if let Some((scattered, attenuation)) = hit.material.scatter(ray, &hit) {
@@ -68,6 +69,7 @@ pub fn ray_trace_rec(scene: &Scene, ray: &Ray, bounces: i32) -> Vector3<f32> {
         return emitted_color;
     }
 
+    // Stare into the void once again!
     return Vector3::new(0.0, 0.0, 0.0);
 }
 
@@ -97,7 +99,6 @@ pub fn render_pass(scene: &Scene) -> Screen {
             .map(|x| single_pixel_pass(*x, y, scene))
             .collect();
     }
-
     return new_screen;
 }
 

@@ -124,7 +124,8 @@ pub fn generate_cornell_box_scene() -> Scene {
     );
 }
 
-pub fn _generate_sphere_scene() -> Scene {
+#[allow(dead_code)]
+pub fn generate_sphere_scene() -> Scene {
     let look_from = Vector3::new(0.0, 5.0, 30.0);
     let look_at = Vector3::new(0.0, 5.0, 0.0);
     let up = Vector3::new(0.0, -1.0, 0.0); // TODO: WTF?

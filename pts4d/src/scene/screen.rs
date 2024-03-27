@@ -1,6 +1,6 @@
 use cgmath::Vector3;
 
-const SCALE: usize = 6;
+const SCALE: usize = 4;
 // 1.78 is the ratio 16 : 9
 pub const RATIO: f32 = 1.00;
 pub const WIDTH: usize = ((RATIO * 100.0) as usize) * SCALE;

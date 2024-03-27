@@ -29,6 +29,7 @@ mod utils {
 
 mod renderer;
 
+use crate::renderer::SAMPLES_PER_PIXEL;
 use crate::scene::scene::Scene;
 use crate::scene::screen::{HEIGHT, WIDTH};
 use crate::utils::rendering_utils::{add_screens, handle_input, initialize_screen, present_screen};
@@ -63,11 +64,7 @@ pub fn main() -> Result<(), String> {
 
     let mut event_pump = sdl_context.event_pump()?;
 
-    // Initialize PTS4D World
-    // let scene: Scene = scene_builders::generate_scene();
-
     // scene is mutable, so the camera can be modified during runtime.
-    // let mut scene: Scene = scene_builders::generate_polygon_scene("./objs/benchmark/cornell-box.obj");
     let mut scene: Scene = scene_builders::generate_cornell_box_scene();
 
     // Keep track of iterations
@@ -98,13 +95,14 @@ pub fn main() -> Result<(), String> {
         curr_samples_per_pixel += 1;
         all_frames = add_screens(all_frames, render_pass(&scene));
         present_screen(&all_frames, &mut canvas, curr_samples_per_pixel);
-        
+
         let end_time = Instant::now() - start_time;
         println!(
-            "Frame {} in {:?} - {} FPS",
+            "Frame {} in {:?} - {} FPS - Acc. {} SPP",
             curr_samples_per_pixel,
             end_time,
-            1000.0 / end_time.as_millis() as f32
+            1000.0 / end_time.as_millis() as f32,
+            curr_samples_per_pixel * SAMPLES_PER_PIXEL
         );
     }
 
