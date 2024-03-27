@@ -72,7 +72,7 @@ impl Material {
         }
     }
 
-    pub fn emit(&self, ray_in: &Ray) -> Vector3<f32> {
+    pub fn emit(&self, _ray_in: &Ray) -> Vector3<f32> {
         match self {
             Material::Emissive(color, intensity) => *intensity * *color,
             Material::WavefrontObjMaterial(wavefront_mat) => {
