@@ -8,6 +8,8 @@ edition = "2021"
 [lib]
 name = "pts4d"
 path = "src/lib.rs"
+# staticlib / cdylib so it can be linked from C (see src/ffi.rs and include/pts4d.h)
+crate-type = ["rlib", "staticlib", "cdylib"]
 
 [[bin]]
 name = "pts4d"

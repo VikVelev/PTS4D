@@ -30,3 +30,6 @@ pub mod renderer;
 
 // Renders the Wasp8 (CHIP-8) screen
 pub mod wasp8;
+
+// C ABI for the above, see include/pts4d.h
+pub mod ffi;
