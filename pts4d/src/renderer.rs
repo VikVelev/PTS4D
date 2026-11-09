@@ -61,6 +61,18 @@ pub fn ray_trace_rec(scene: &Scene, ray: &Ray, bounces: i32, max_depth: i32) -> 
         }
     }
 
+    for obj in &scene.grids {
+        if obj
+            .bounding_box()
+            .intersect(ray, Interval::new(MIN_T, closest_t))
+        {
+            if let Some(hit) = cast_ray(obj, ray, closest_t) {
+                closest_t = hit.point_at_intersection;
+                closest_hit = Some(hit);
+            }
+        }
+    }
+
     if let Some(hit) = closest_hit {
         let emitted_color = hit.material.emit(ray);
 

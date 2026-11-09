@@ -1,6 +1,7 @@
 pub mod object {
     pub mod mesh;
     pub mod object;
+    pub mod pixel_grid;
     pub mod sphere;
 }
 

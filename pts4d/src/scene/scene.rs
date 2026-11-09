@@ -1,4 +1,5 @@
 use crate::object::mesh::Mesh;
+use crate::object::pixel_grid::PixelGrid;
 use crate::object::sphere::Sphere;
 use crate::scene::camera::Camera;
 use crate::utils::vector_utils::Ray;
@@ -6,6 +7,7 @@ use crate::utils::vector_utils::Ray;
 pub struct Scene {
     pub meshes: Vec<Mesh>,
     pub spheres: Vec<Sphere>,
+    pub grids: Vec<PixelGrid>,
     pub camera: Camera,
 }
 
@@ -14,6 +16,7 @@ impl Scene {
         return Scene {
             meshes,
             spheres,
+            grids: Vec::new(),
             camera,
         };
     }
