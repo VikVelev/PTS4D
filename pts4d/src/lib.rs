@@ -27,3 +27,6 @@ pub mod utils {
 }
 
 pub mod renderer;
+
+// Renders the Wasp8 (CHIP-8) screen
+pub mod wasp8;
