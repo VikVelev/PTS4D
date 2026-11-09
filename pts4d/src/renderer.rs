@@ -14,12 +14,16 @@ const MIN_T: f32 = 0.001;
 const DEBUG_AABB: bool = false;
 
 pub fn ray_trace(scene: &Scene, ray: &Ray) -> Vector3<f32> {
-    return ray_trace_rec(scene, ray, 0);
+    return ray_trace_rec(scene, ray, 0, MAX_DEPTH);
 }
 
-// Recursively ray-trace until the number of bounces has reached MAX_DEPTH
-pub fn ray_trace_rec(scene: &Scene, ray: &Ray, bounces: i32) -> Vector3<f32> {
-    if bounces >= MAX_DEPTH {
+pub fn ray_trace_with_depth(scene: &Scene, ray: &Ray, max_depth: i32) -> Vector3<f32> {
+    return ray_trace_rec(scene, ray, 0, max_depth);
+}
+
+// Recursively ray-trace until the number of bounces has reached max_depth
+pub fn ray_trace_rec(scene: &Scene, ray: &Ray, bounces: i32, max_depth: i32) -> Vector3<f32> {
+    if bounces >= max_depth {
         // Stare into the void!
         return Vector3::new(0.0, 0.0, 0.0);
     }
@@ -61,8 +65,12 @@ pub fn ray_trace_rec(scene: &Scene, ray: &Ray, bounces: i32) -> Vector3<f32> {
         let emitted_color = hit.material.emit(ray);
 
         if let Some((scattered, attenuation)) = hit.material.scatter(ray, &hit) {
-            let scattered_color =
-                attenuation.mul_element_wise(ray_trace_rec(scene, &scattered, bounces + 1));
+            let scattered_color = attenuation.mul_element_wise(ray_trace_rec(
+                scene,
+                &scattered,
+                bounces + 1,
+                max_depth,
+            ));
             return emitted_color + scattered_color;
         }
 
