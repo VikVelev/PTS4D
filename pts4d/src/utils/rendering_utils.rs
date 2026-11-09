@@ -1,11 +1,13 @@
 use cgmath::Vector3;
+#[cfg(feature = "viewer")]
 use sdl2::{
     event::Event, keyboard::Keycode, pixels::Color, rect::Point, render::Canvas, video::Window,
 };
 
+#[cfg(feature = "viewer")]
+use crate::scene::scene::Scene;
 use crate::scene::{
     camera::{Camera, CameraConfig},
-    scene::Scene,
     screen::{Screen, HEIGHT, WIDTH},
 };
 
@@ -43,6 +45,7 @@ fn add_rows(row1: &Vec<Vector3<f32>>, row2: &Vec<Vector3<f32>>) -> Vec<Vector3<f
     return row1.iter().zip(row2.iter()).map(|(&x, &y)| x + y).collect();
 }
 
+#[cfg(feature = "viewer")]
 pub fn handle_input(event: Event, scene: &mut Scene) -> bool {
     match event {
         Event::KeyDown {
@@ -106,6 +109,7 @@ pub fn renew_camera(config: &CameraConfig) -> Camera {
     );
 }
 
+#[cfg(feature = "viewer")]
 pub fn present_screen(screen: &Screen, sdl_canvas: &mut Canvas<Window>, iteration: i32) {
     for (y, row) in screen.iter().enumerate() {
         for (x, pixel) in row.iter().enumerate() {

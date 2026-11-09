@@ -1,41 +1,12 @@
 extern crate sdl2;
 
-mod object {
-    pub mod mesh;
-    pub mod object;
-    pub mod sphere;
-}
+use pts4d::renderer::SAMPLES_PER_PIXEL;
+use pts4d::scene::scene::Scene;
+use pts4d::scene::screen::{HEIGHT, WIDTH};
+use pts4d::utils::rendering_utils::{add_screens, handle_input, initialize_screen, present_screen};
+use pts4d::utils::scene_builders;
 
-mod materials {
-    pub mod material;
-}
-
-mod scene {
-    pub mod camera;
-    pub mod scene;
-    pub mod screen;
-}
-
-mod accel {
-    pub mod aabb;
-    pub mod bvh;
-}
-
-mod utils {
-    pub mod rendering_utils;
-    pub mod scene_builders;
-    pub mod vector_utils;
-}
-
-mod renderer;
-
-use crate::renderer::SAMPLES_PER_PIXEL;
-use crate::scene::scene::Scene;
-use crate::scene::screen::{HEIGHT, WIDTH};
-use crate::utils::rendering_utils::{add_screens, handle_input, initialize_screen, present_screen};
-use crate::utils::scene_builders;
-
-use renderer::render_pass;
+use pts4d::renderer::render_pass;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::pixels::Color;
